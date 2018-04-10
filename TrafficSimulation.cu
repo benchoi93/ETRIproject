@@ -135,7 +135,7 @@ typedef struct {
 	int offset;
 } turning_info;
 
-__global__ void simulationStep(int loop_limit, link *linkcell, node *n,
+__global__ void simulationStep(int loop_limit, link *l, node *n,
 		vehicle *v) {
 	int tid = threadIdx.x;
 	int i = blockIdx.x * blockDim.x + tid;
@@ -144,19 +144,29 @@ __global__ void simulationStep(int loop_limit, link *linkcell, node *n,
 		for (int current = 0; current < loop_limit; current++) {
 			
 			
-			// Vehicle List에서 처리 
+			// Vehicle 데이터베이스 전체를 시작전에 처리 
 			
-			
-			for(int vehID = 0; vehID<size(vehList); vehID++){
-				// Mandatory Lane Change 대상 차량 선정 
-				veh=vehList(vehID);
-				int TargetLaneLeft=vehList(vehID).targetLane1[(vehList(vehId).currentLinkOrder];
-				int TargetLaneRight=vehList(vehID).targetLane2[(vehList(vehId).currentLinkOrder];
+			for(int vehID = 0; vehID<size(v); vehID++){
 				
-				if(veh.currentLane < TargetLaneLeft){veh.lanechange=1;}
-				elseif(veh.currentLane < TargetLaneLeft) {veh.lanechange=-1;}
-				else (veh.lanechange=0;) 	
+				
+				// Mandatory Lane Change 대상 차량 선정 및 차량 데이터베이스에 차로변경 플래그(veh.lanechange) 설정 
+				
+				veh=v(vehID); // 차량데이터 베이스에서  가지고 오기 
+				
+				int TargetLaneLeft=veh.targetLane1[veh.currentLinkOrder];  // 타겟 레인 하한 가지고 오기 
+				int TargetLaneRight=veh.targetLane2[veh.currentLinkOrder];  // 타겟 레인 상한 가지고 오기 
+				
+				if(veh.currentLane < TargetLaneLeft){veh.lanechange=1;}     // 오른쪽으로 차로 변경이 필요 
+				elseif(veh.currentLane < TargetLaneLeft) {veh.lanechange=-1;}  // 왼쪽으로 차로 변경이 필요
+				else (veh.lanechange=0;) 
+				
+				// Mandatory Lane Change 대상 차량 선정 	
+					
+					
 			}
+			
+			
+			
 			
 				// if vehicle 
 				
@@ -178,12 +188,12 @@ __global__ void simulationStep(int loop_limit, link *linkcell, node *n,
 				
 
 				// update v <= v_agent + v
-				lc[current_link].speed = 60 * lc[current_link].numberOfVehicle;
+				link[current_link].speed = 60 * link[current_link].numberOfVehicle;
 
 				
 				
 				// y_out -> y_in
-				lc[current_link].
+				link[current_link].
 					
 				
 				
@@ -217,8 +227,8 @@ int main(void) {
 	int total_simulation_time = 100, period = 5;
 
 	// set data size
-	int numLaneCell = 16, gpuBlockSize = 4, lcSize = sizeof(lane_cell),
-			numBytes = numLaneCell * lcSize, gpuGridSize = numLaneCell
+	int numLink = 16, gpuBlockSize = 4, linkSize = sizeof(link),
+			numBytes = numLaneCell * linkSize, gpuGridSize = numLaneCell
 					/ gpuBlockSize;
 	int numNode = 16, nodeSize = sizeof(node), numNodesBytes = numNode
 			* nodeSize;
@@ -233,15 +243,15 @@ int main(void) {
 			* lcSize;
 
 	// allocate memory
-	lane_cell *cpuLCArray, *gpuLCArray;
+	link *cpuLinkArray, *gpuLCArray;
 	node *cpuNodeArray, *gpuNodeArray;
 	vehicle *cpuVehicleArray, *gpuVehicleArray;
-	lane_cell *cpuResultArray, *gpuResultArray;
+	link *cpuResultArray, *gpuResultArray;
 
-	cpuLCArray = (lane_cell*) malloc(numBytes);
+	cpuLinkArray = (link*) malloc(numBytes);
 	cpuNodeArray = (node *) malloc(numNodesBytes);
 	cpuVehicleArray = (vehicle *) malloc(numVehicleBytes);
-	cpuResultArray = (lane_cell*) malloc(
+	cpuResultArray = (link*) malloc(
 			numBytes * total_simulation_time / period);
 
 	// input initial data
@@ -249,7 +259,7 @@ int main(void) {
 	printf("%d\n", numNodesBytes);
 	printf("%d\n", numVehicleBytes);
 	// copy host memory to device memory
-	cudaMalloc((void**) &gpuLCArray, numBytes);
+	cudaMalloc((void**) &gpuLinkArray, numBytes);
 	cudaMalloc((void**) &gpuNodeArray, numNodesBytes);
 	cudaMalloc((void**) &gpuVehicleArray, numVehicleBytes);
 
@@ -274,12 +284,12 @@ int main(void) {
 	printf("end");
 
 	// deallocate memory
-	free(cpuLCArray);
+	free(cpuLinkArray);
 	free(cpuNodeArray);
 	free(cpuVehicleArray);
 	free(cpuResultArray);
 
-	cudaFree(gpuLCArray);
+	cudaFree(gpuLinkArray);
 	cudaFree(gpuNodeArray);
 	cudaFree(gpuVehicleArray);
 	cudaFree(gpuResultArray);
