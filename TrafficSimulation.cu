@@ -212,30 +212,30 @@ __global__ void simulationStep(int loop_limit, link *l, node *n,
 										
 			// 
 			for(int vehID = 0; vehID<size(v); vehID++){
-				vehicle_move(veh);
-				
-				// --------------------------------------------------------------------------------------------------
-				// 차량의 현재 Cell과 링크를 업데이트 한다.
-				if (veh.moveForward==1){
-					if((veh.currentCell == l[veh.currentLink].NoCell)) {
-						veh.currentLinkOrder++; // Path의 현재 링크 순서를 1 증가 
-						veh.currentLink = veh.path[currentLinkOrder];
-						veh.currentCell= 0;  // Cell position을 링크 시작점으로 
-					} else {
-						veh.currentCell++;
-					}
-				}
-				// --------------------------------------------------------------------------------------------------
-
-				
-				
-				
+				vehicle_move(veh);				
 			}							
 										
 	}
 }
 										
 int vehicle_move(vehicle veh){
+	
+	// --------------------------------------------------------------------------------------------------
+	// 차량의 현재 Cell과 링크를 업데이트 한다.
+	//--------------------------------------------------------------------------------------------------
+	if (veh.moveForward==1){
+			if((veh.currentCell == l[veh.currentLink].NoCell)) { // 현재 셀이 링크의 마지막셀인 경우 
+				veh.currentLinkOrder++; // Path의 현재 링크 순서를 1 증가 
+				veh.currentLink = veh.path[currentLinkOrder];
+				veh.currentCell= 0;  // Cell position을 링크 시작점으로 
+			} else {
+				veh.currentCell++;   //마지막 셀이 아니면, 다음 셀로 차량을 옮긴다.
+				}
+			}
+	// --------------------------------------------------------------------------------------------------
+
+				
+	
 	if (veh.Lanechange = +1) {}	// Move vehicle to left lane 
 	if (veh.Lanechange = -1) {} 	// Move vehicle to Right lane 	
 	if (veh.moveforward = 1) {}     // Move vehicle to frent cell
