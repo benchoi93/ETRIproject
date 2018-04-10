@@ -4,12 +4,12 @@
 #test branch
 
 
-#define MAX(a,b) \  
+#define max(a,b) \  
 ({ __typeof__ (a) _a = (a); \  
 __typeof__ (b) _b = (b); \  
 _a > _b ? _a : _b; })  
   
-#define MIN(a,b) \  
+#define min(a,b) \  
 ({ __typeof__ (a) _a = (a); \  
 __typeof__ (b) _b = (b); \  
 _a < _b ? _a : _b; })
@@ -28,6 +28,70 @@ works to do
  
 3. vehicle transmission function
 */
+
+
+
+
+int w = 15;
+int dt = 5;
+
+
+int maxNconst = 20;
+float maxYconst = 1800;
+float Vfconst = 50;
+float CellLengthconst = 100;
+
+
+int m = 6; //number of cells in current link
+int l = 4; //maximum number of lanes in current link
+
+/*
+link newlink;
+newlink.NoLane = 4;
+newlink.NoCell = 6;
+*/
+
+double CFsim(newlink, w, dt)
+{
+	int N = newlink.N;
+	int maxN = newlink.maxN;
+	float Y = newlink.Y;
+	float maxY = newlink.maxY;
+	float V = newlink.V;
+	float Vf = newlink.Vf;
+
+	float L = newlink.CellLength;
+	
+	int NoCell = newlink.NoCell;
+	int NoLane = newlink.NoLane;
+	
+	float Lmin = Vf/3.6 * dt;
+	
+	int l;
+	int m;
+
+	for (m = 0; m < NoCell; m++) {
+		for (l = 0; l < NoLane; l++) {
+			if (m == 0) {
+				Y[m][l] = 1;
+			} else if {
+				Y[m][l] = min( min( Lmin/L[m] * N[m][l], maxY[m][l]), 
+						min( maxY[m][l+1], w * dt / L * (maxN[m][l] - N[m][l] ));
+			}
+		
+		N[m][l] += Y[m][l]
+		
+		}
+
+	}
+
+
+
+	return();
+}
+
+
+
 
 /*typedef struct {
 	// about link
@@ -60,14 +124,14 @@ works to do
 typedef struct {
 	int NoLane;
 	int NoCell;
-	int N[][];  		// 2D Array [NoCell	,NoLane]
-	int MaxN[][];		// 2D Array [NoCell	,NoLane]
-	int LC_left[][]; 	// 2D Array [NoCell	,NoLane]
-	int LC_Right[][]; 	// 2D Array [NoCell	,NoLane]
-	float V[][];		// 2D Array [NoCell	,NoLane]
-	float Vf[][];		// 2D Array [NoCell	,NoLane]
-	float Y[][];		// 2D Array [NoCell+1	,NoLane]
-	float MaxY[][];		// 2D Array [NoCell	,NoLane]
+	int N[NoCell][NoLane];  		// 2D Array [NoCell	,NoLane]
+	int MaxN[NoCell][NoLane];		// 2D Array [NoCell	,NoLane]
+	int LC_left[NoCell][NoLane]; 	// 2D Array [NoCell	,NoLane]
+	int LC_Right[NoCell][NoLane]; 	// 2D Array [NoCell	,NoLane]
+	float V[NoCell][NoLane];		// 2D Array [NoCell	,NoLane]
+	float Vf[NoCell][NoLane];		// 2D Array [NoCell	,NoLane]
+	float Y[NoCell+1][NoLane];		// 2D Array [NoCell+1	,NoLane]
+	float MaxY[NoCell+1][NoLane];		// 2D Array [NoCell	,NoLane]
 	float CellLength[NoCell];
 		
 		
