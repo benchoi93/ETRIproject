@@ -69,7 +69,7 @@ typedef struct {
 	int NoCell;
 	int N[NoCell][NoLane];  		// 2D Array [NoCell	,NoLane]
 	int MaxN[NoCell][NoLane];		// 2D Array [NoCell	,NoLane]
-	int LC_left[NoCell][NoLane]; 	// 2D Array [NoCell	,NoLane]
+	int LC_Left[NoCell][NoLane]; 	// 2D Array [NoCell	,NoLane]
 	int LC_Right[NoCell][NoLane]; 	// 2D Array [NoCell	,NoLane]
 	float V[NoCell][NoLane];		// 2D Array [NoCell	,NoLane]
 	float Vf[NoCell][NoLane];		// 2D Array [NoCell	,NoLane]
@@ -147,42 +147,25 @@ __global__ void simulationStep(int loop_limit, link *l, node *n,
 	// simulation time
 		for (int current = 0; current < loop_limit; current++) {
 			
-	
-	 		// Madatory LC 처리	
-			Evaluate_MLC(v);	  	
-				
-			// Optioanl LC 처리
-			Evlauate_OLC(v,l);
+			// 전체 차량들에  대해 Mandatory LC 처리	
+			Evaluate_MLC(v);	 
+	 		
+			//  각 링크별로 처리  
+			for (int current_link = 0; current_link < sizeof(l);i + current_link++) {			 				
+				// Optioanl LC 처리
+				Evlauate_OLC(v,current_link);
 			
-			// 
-			
-			
-			for (int current_link = 0; current_link < sizeof(linkcell);
-					i + current_link++) {
-				
-	
+				//CTM SIM 처리    
+				CFsim(current_link);
 
-				// update v <= v_agent + v
-				link[current_link].speed = 60 * link[current_link].numberOfVehicle;
-
-				
-				
-				// y_out -> y_in
-				link[current_link].
-					
-				
-				
-					
-					
-					
-				// record result
+			
+				// 링크별 결과 전송
 
 			}
-										
-										
+																	
 
-			
-				Vehicle_Move(v);				
+			//전체 차량들에대해 셀이동 처리  
+			Vehicle_Move(v);				
 								
 										
 	}
