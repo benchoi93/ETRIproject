@@ -41,16 +41,15 @@ typedef struct {
 	int LC_left[,]; 	// 2D Array [NoCell	,NoLane]
 	int LC_Right[,]; 	// 2D Array [NoCell	,NoLane]
 	float V[,];		// 2D Array [NoCell	,NoLane]
+	float Vf[,];		// 2D Array [NoCell	,NoLane]
 	float Y[,];		// 2D Array [NoCell+1	,NoLane]
 	float MaxY[,];		// 2D Array [NoCell	,NoLane]
-	
+	float CellLength[NoCell]
+		
 	int NextLink[NoLane]
 	int NextLane[NoLane]
-		
 } link;
 
-
-// hello this 
 
 typedef struct {
 	int nodeID;
@@ -69,6 +68,13 @@ typedef struct {
 	// int distanceToNode;
 
 	int type;
+	
+	int MandatoryLC;
+	
+	int moveforward;
+	int moveright;
+	int moveleft;
+	
 //	int freeflowspeed;
 //	int minSpacing;
 //	int reactionTime;
@@ -79,12 +85,20 @@ typedef struct {
 	int NoLinksinPath;  //size of array path path[NoLinksinPath]
 	int targetLane1[]; // minimum Target Lane  EX) 2
 	int targetLane2[]; // max Target Lane  Ex) 3
-	
-	
 } vehicle;
 
 /* 
-
+works to do
+1. longitudinal movement function
+ --> based on CTM function
+ --> function 
+    --> input : (N, maxN, vf, maxY, w{wave speed}, dt)
+    --> output : y {array}
+ 
+2. lateral movement function
+ --> LC probability : logit function (~ speed diff. / vf)
+ 
+3. vehicle transmission function
 
 */
 
@@ -104,82 +118,32 @@ typedef struct {
 	int offset;
 } turning_info;
 
-__global__ void simulationStep(int loop_limit, link *linkcell, node *n,
+__global__ void simulationStep(int loop_limit, lane_cell *lc, node *n,
 		vehicle *v) {
 	int tid = threadIdx.x;
 	int i = blockIdx.x * blockDim.x + tid;
 
 	// simulation time
 		for (int current = 0; current < loop_limit; current++) {
-			
-			
-			// Vehicle List에서 처리 
-			
-			
-			for(int vehID = 0; vehID<size(vehList); vehID++){
-				// Mandatory Lane Change 대상 차량 선정 
-				veh=vehList(vehID);
-				int TargetLaneLeft=vehList(vehID).targetLane1[(vehList(vehId).currentLinkOrder];
-				int TargetLaneRight=vehList(vehID).targetLane2[(vehList(vehId).currentLinkOrder];
-				
-				if(veh.currentLane < TargetLaneLeft){veh.lanechange=1;}
-				elseif(veh.currentLane < TargetLaneLeft) {veh.lanechange=-1;}
-				else (veh.lanechange=0;) 	
-			}
-			
-				// if vehicle 
-				
-		
-				
-				// Optional LC 
-				
-			
-			
-			
-			
-			for (int current_link = 0; current_link < sizeof(linkcell);
-					i + current_link++) {
-				
-			//Lane Change Execution	
-				
-				
-				
-				
+			for (int current_lane = 0; current_lane < sizeof(lc);
+					i + current_lane++) {
+				// insert vehicle from vehicle queue
+
+				// update n <= n_agent + n
+				lc[current_lane].numberOfVehicle ++;
 
 				// update v <= v_agent + v
-				lc[current_link].speed = 60 * lc[current_link].numberOfVehicle;
+				lc[current_lane].speed = 60 * lc[current_lane].numberOfVehicle;
 
-				
-				
+				// lane change
+
 				// y_out -> y_in
-				lc[current_link].
-					
-				
-				
-					
-					
-					
+				lc[current_lane].
 				// record result
 
 			}
-										
-										
-			// Vehile Update 
-										
-			// 
-			for(int vehID = 0; vehID<size(vehList); vehID++){
-				vehicle_move(veh);			
-			}							
-										
 	}
 }
-										
-int vehicle_move(vehicle veh){
-	if (veh.Lanechange = +1) {}	// Move vehicle to left lane 
-	if (veh.Lanechange = -1) {} 	// Move vehicle to Right lane 	
-	if (veh.moveforward = 1) {}     // Move vehicle to frent cell
-}								
-						
 
 int main(void) {
 	// simulation info
