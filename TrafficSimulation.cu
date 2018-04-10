@@ -41,6 +41,7 @@ typedef struct {
 	int LC_left[,]; 	// 2D Array [NoCell	,NoLane]
 	int LC_Right[,]; 	// 2D Array [NoCell	,NoLane]
 	float V[,];		// 2D Array [NoCell	,NoLane]
+	float Vf[,];		// 2D Array [NoCell	,NoLane]
 	float Y[,];		// 2D Array [NoCell+1	,NoLane]
 	float MaxY[,];		// 2D Array [NoCell	,NoLane]
 	
@@ -79,7 +80,17 @@ typedef struct {
 } vehicle;
 
 /* 
-
+works to do
+1. longitudinal movement function
+ --> based on CTM function
+ --> function 
+    --> input : (N, maxN, vf, maxY, w{wave speed}, dt)
+    --> output : y {array}
+ 
+2. lateral movement function
+ --> LC probability : logit function (~ speed diff. / vf)
+ 
+3. vehicle transmission function
 
 */
 
