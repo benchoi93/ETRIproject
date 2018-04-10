@@ -29,6 +29,13 @@ works to do
 3. vehicle transmission function
 */
 
+int dt = 5;     //time step
+
+int maxNconst = 20;
+float maxYconst = 1800;
+float Vfconst = 50;
+float CellLengthconst = 100;
+
 /*typedef struct {
 	// about link
 	int linkID;
@@ -60,14 +67,14 @@ works to do
 typedef struct {
 	int NoLane;
 	int NoCell;
-	int N[][];  		// 2D Array [NoCell	,NoLane]
-	int MaxN[][];		// 2D Array [NoCell	,NoLane]
-	int LC_Left[][]; 	// 2D Array [NoCell	,NoLane]
-	int LC_Right[][]; 	// 2D Array [NoCell	,NoLane]
-	float V[][];		// 2D Array [NoCell	,NoLane]
-	float Vf[][];		// 2D Array [NoCell	,NoLane]
-	float Y[][];		// 2D Array [NoCell+1	,NoLane]
-	float MaxY[][];		// 2D Array [NoCell	,NoLane]
+	int N[NoCell][NoLane];  		// 2D Array [NoCell	,NoLane]
+	int MaxN[NoCell][NoLane];		// 2D Array [NoCell	,NoLane]
+	int LC_left[NoCell][NoLane]; 	// 2D Array [NoCell	,NoLane]
+	int LC_Right[NoCell][NoLane]; 	// 2D Array [NoCell	,NoLane]
+	float V[NoCell][NoLane];		// 2D Array [NoCell	,NoLane]
+	float Vf[NoCell][NoLane];		// 2D Array [NoCell	,NoLane]
+	float Y[NoCell+1][NoLane];		// 2D Array [NoCell+1	,NoLane]
+	float MaxY[NoCell+1][NoLane];		// 2D Array [NoCell	,NoLane]
 	float CellLength[NoCell];
 		
 		
@@ -76,8 +83,6 @@ typedef struct {
 		
 } link;
 
-
-// hello this 
 
 typedef struct {
 	int nodeID;
@@ -182,6 +187,40 @@ __global__ void simulationStep(int loop_limit, link *l, node *n,
 										
 	}
 }
+
+void CFsim(link* l){
+	double w = 15;  //wave speed
+	
+	int N = l.N;
+	int maxN = l.maxN;
+	float Y = l.Y;
+	float maxY = l.maxY;
+	float V = l.V;
+	float Vf = l.Vf;
+
+	float L = l.CellLength;
+	
+	int NoCell = l.NoCell;
+	int NoLane = l.NoLane;
+	
+	float Lmin = Vf/3.6 * dt;
+	
+	int cell;
+	int lane;
+
+	for (cell = 0; cell < NoCell; cell++) {
+		for (lane = 0; lane < NoLane; lane++) {
+			if (cell == 0) {
+				Y[cell][lane] = 1;
+			} else if {
+				Y[cell][lane] = min( min( Lmin/L[cell] * N[cell][lane], maxY[cell][lane]), 
+						min( maxY[cell][lane+1], w * dt / L * (maxN[cell][lane] - N[cell][lane] ));
+			}
+		N[cell][lane] += Y[cell][lane];
+		}
+	}
+}
+
 
 void Evaluate_MLC(vehicle* v){
 
