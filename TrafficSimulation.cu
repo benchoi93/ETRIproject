@@ -43,7 +43,7 @@ typedef struct {
 	int MaxN[,];
 	
 	
-} link
+} link;
 
 
 // hello this 
