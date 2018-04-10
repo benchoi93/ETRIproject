@@ -44,7 +44,8 @@ typedef struct {
 	float Vf[,];		// 2D Array [NoCell	,NoLane]
 	float Y[,];		// 2D Array [NoCell+1	,NoLane]
 	float MaxY[,];		// 2D Array [NoCell	,NoLane]
-	
+	float CellLength[NoCell]
+		
 	int NextLink[NoLane]
 	int NextLane[NoLane]
 } link;
