@@ -40,7 +40,7 @@ float Vfconst = 50;
 float CellLengthconst = 100;
 
 
-void CFsim(newlink, w, dt)
+void CFsim(link* newlink)
 {
 	int N = newlink.N;
 	int maxN = newlink.maxN;
