@@ -1,6 +1,6 @@
 #include <stdlib.h>
 #include <stdio.h>
-#say hello
+
 
 typedef struct {
 	// about link
@@ -32,6 +32,8 @@ typedef struct {
 	// insert vehicle
 } lane_cell;
 
+// hello this 
+
 typedef struct {
 	int nodeID;
 	int type; 	// intersection, source, sink
@@ -54,7 +56,11 @@ typedef struct {
 
 	int driving_moment;
 	int lane_change;
-	int path[10];
+	
+	int path[20];  // Array of Links EX) [15, 17, 19,...,0,0] 
+	int NoLinksinPath;
+	int targetLane1[]; // minimum Target Lane  EX) 2
+	int targetLane2[]; // max Target Lane  Ex) 3
 } vehicle;
 
 typedef struct {
