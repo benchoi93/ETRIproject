@@ -219,9 +219,19 @@ __global__ void simulationStep(int loop_limit, link *l, node *n,
 }
 										
 int vehicle_move(vehicle veh){
+
+	// --------------------------------------------------------------------------------------------------
+	// 차로변경이 있는 경우 차량의 현재 Cell과 링크를 업데이트 한다.
+	//--------------------------------------------------------------------------------------------------
+	if (veh.Lanechange = +1) {}	// Move vehicle to left lane 
+	if (veh.Lanechange = -1) {} 	// Move vehicle to Right lane 	
+	if (veh.moveforward = 1) {}     // Move vehicle to frent cell
 	
 	// --------------------------------------------------------------------------------------------------
-	// 차량의 현재 Cell과 링크를 업데이트 한다.
+	
+
+	// --------------------------------------------------------------------------------------------------
+	// 차량이 다음셀로 전진하는 경우 차량의 현재 Cell과 링크를 업데이트 한다.
 	//--------------------------------------------------------------------------------------------------
 	if (veh.moveForward==1){
 			if((veh.currentCell == l[veh.currentLink].NoCell)) { // 현재 셀이 링크의 마지막셀인 경우 
@@ -233,12 +243,9 @@ int vehicle_move(vehicle veh){
 				}
 			}
 	// --------------------------------------------------------------------------------------------------
-
 				
-	
-	if (veh.Lanechange = +1) {}	// Move vehicle to left lane 
-	if (veh.Lanechange = -1) {} 	// Move vehicle to Right lane 	
-	if (veh.moveforward = 1) {}     // Move vehicle to frent cell
+
+	return 1;
 }								
 						
 
