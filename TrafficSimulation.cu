@@ -2,7 +2,7 @@
 #include <stdio.h>
 
 
-typedef struct {
+/*typedef struct {
 	// about link
 	int linkID;
 	int fromNode;
@@ -31,6 +31,8 @@ typedef struct {
 	// int lane_change;		// no need
 	// insert vehicle
 } lane_cell;
+*/
+
 
 // hello this 
 
