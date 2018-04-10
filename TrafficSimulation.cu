@@ -36,13 +36,13 @@
 typedef struct {
 	int NoLane;
 	int NoCell;
-	int N[,];    // 2D Array N[NoCell,NoLane]
-	int LC_left[,];
-	int LC_Right[,];
-	float V[,];
-	int MaxN[,];
-	float Y[,];
-	float MaxY[,];
+	int N[,];  		// 2D Array N[NoCell	,NoLane]
+	int MaxN[,];		// 2D Array N[NoCell	,NoLane]
+	int LC_left[,]; 	// 2D Array N[NoCell	,NoLane]
+	int LC_Right[,]; 	// 2D Array N[NoCell	,NoLane]
+	float V[,];		// 2D Array N[NoCell	,NoLane]
+	float Y[,];		// 2D Array N[NoCell+1	,NoLane]
+	float MaxY[,];		// 2D Array N[NoCell	,NoLane]
 	
 } link;
 
