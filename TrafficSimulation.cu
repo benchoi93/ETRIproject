@@ -1,5 +1,6 @@
 #include <stdlib.h>
 #include <stdio.h>
+#say hello
 
 typedef struct {
 	// about link
