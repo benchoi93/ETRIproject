@@ -49,8 +49,6 @@ typedef struct {
 } link;
 
 
-// hello this 
-
 typedef struct {
 	int nodeID;
 	int type; 	// intersection, source, sink
