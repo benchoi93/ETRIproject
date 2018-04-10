@@ -36,12 +36,13 @@
 typedef struct {
 	int NoLane;
 	int NoCell;
-	int N[,];
+	int N[,];    // 2D Array N[NoCell,NoLane]
 	int LC_left[,];
 	int LC_Right[,];
 	float V[,];
 	int MaxN[,];
-	
+	float Y[,];
+	float MaxY[,];
 	
 } link;
 
@@ -59,9 +60,10 @@ typedef struct {
 typedef struct {
 	// current position
 	int currentLane;
-	int currentSection;
+	int currentCell;
 	int currentLink;
-	int distanceToNode;
+	int currentLinkOrder; // 
+	// int distanceToNode;
 
 	int type;
 	int freeflowspeed;
@@ -72,10 +74,16 @@ typedef struct {
 	int lane_change;
 	
 	int path[20];  // Array of Links EX) [15, 17, 19,...,0,0] 
-	int NoLinksinPath;
+	int NoLinksinPath;  //size of array path path[NoLinksinPath]
 	int targetLane1[]; // minimum Target Lane  EX) 2
 	int targetLane2[]; // max Target Lane  Ex) 3
 } vehicle;
+
+/* 
+
+
+*/
+
 
 typedef struct {
 	int startLinkID;
