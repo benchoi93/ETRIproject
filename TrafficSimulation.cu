@@ -83,6 +83,12 @@ typedef struct {
 	// int distanceToNode;
 
 	int type;
+	
+	int MandatoryLC;
+	int moveForward;
+	int moveRight;
+	int moveLeft;
+	
 //	int freeflowspeed;
 //	int minSpacing;
 //	int reactionTime;
