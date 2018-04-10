@@ -107,10 +107,10 @@ typedef struct {
 	
 	int lanechange;  // 1이면 오른쪽으로 차로변경, -1이면 왼쪽으로 변경이 필요 
 	
-	int path[20];  // Array of Links EX) [15, 17, 19,...,0,0] 
+	int path[20];  // Array of Link IDs EX) [15, 17, 19,...,0,0] 
 	int NoLinksinPath;  //size of array path path[NoLinksinPath]  path 의 데이터 크기 
-	int targetLane1[]; // minimum Target Lane  EX) 2  타겟 레인의 하한값 설정
-	int targetLane2[]; // max Target Lane  Ex) 3   타겟 레인 가안 값 설정 
+	int targetLane1[20]; // minimum Target Lane  EX) 2  타겟 레인의 하한값 설정
+	int targetLane2[20]; // max Target Lane  Ex) 3   타겟 레인 가안 값 설정 
 	
 	
 } vehicle;
@@ -142,13 +142,14 @@ __global__ void simulationStep(int loop_limit, link *l, node *n,
 	// simulation time
 		for (int current = 0; current < loop_limit; current++) {
 			
-			
+			// ------------------------------------------------------------------------------------------------------------
 			// Vehicle 데이터베이스 전체를 시작전에 처리 
 			
-			for(int vehID = 0; vehID<size(v); vehID++){
+			for(int vehID = 0; vehID < sizeof(v); vehID++){
 				
-				
+				// --------------------------------------------------------------------------------------------------
 				// Mandatory Lane Change 대상 차량 선정 및 차량 데이터베이스에 차로변경 플래그(veh.lanechange) 설정 
+				// --------------------------------------------------------------------------------------------------
 				
 				veh=v(vehID); // 차량데이터 베이스에서  가지고 오기 
 				
@@ -158,11 +159,14 @@ __global__ void simulationStep(int loop_limit, link *l, node *n,
 				if(veh.currentLane < TargetLaneLeft){veh.lanechange=1;}     // 오른쪽으로 차로 변경이 필요 
 				elseif(veh.currentLane < TargetLaneLeft) {veh.lanechange=-1;}  // 왼쪽으로 차로 변경이 필요
 				else (veh.lanechange=0;) 
+					
+				// --------------------------------------------------------------------------------------------------
 				
-				// Mandatory Lane Change 대상 차량 선정 	
 					
 					
 			}
+			
+			// --------------------------------------------------------------------------------------------------
 			
 			
 			
@@ -207,8 +211,25 @@ __global__ void simulationStep(int loop_limit, link *l, node *n,
 			// Vehile Update 
 										
 			// 
-			for(int vehID = 0; vehID<size(vehList); vehID++){
-				vehicle_move(veh);			
+			for(int vehID = 0; vehID<size(v); vehID++){
+				vehicle_move(veh);
+				
+				// --------------------------------------------------------------------------------------------------
+				// 차량의 현재 Cell과 링크를 업데이트 한다.
+				if (veh.moveForward==1){
+					if((veh.currentCell == l[veh.currentLink].NoCell)) {
+						veh.currentLinkOrder++; // Path의 현재 링크 순서를 1 증가 
+						veh.currentLink = veh.path[currentLinkOrder];
+						veh.currentCell= 0;  // Cell position을 링크 시작점으로 
+					} else {
+						veh.currentCell++;
+					}
+				}
+				// --------------------------------------------------------------------------------------------------
+
+				
+				
+				
 			}							
 										
 	}
