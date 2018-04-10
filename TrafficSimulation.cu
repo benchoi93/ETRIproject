@@ -68,12 +68,11 @@ typedef struct {
 	// int distanceToNode;
 
 	int type;
-	int freeflowspeed;
-	int minSpacing;
-	int reactionTime;
-
-	int driving_moment;
-	int lane_change;
+//	int freeflowspeed;
+//	int minSpacing;
+//	int reactionTime;
+//	int driving_moment;
+//	int lane_change;
 	
 	int path[20];  // Array of Links EX) [15, 17, 19,...,0,0] 
 	int NoLinksinPath;  //size of array path path[NoLinksinPath]
