@@ -145,27 +145,27 @@ __global__ void simulationStep(int loop_limit, link *l, node *n,
 	int i = blockIdx.x * blockDim.x + tid;
 
 	// simulation time
-		for (int current = 0; current < loop_limit; current++) {
+	for (int current = 0; current < loop_limit; current++) {
 			
-			// 전체 차량들에  대해 Mandatory LC 처리	
-			Evaluate_MLC(v);	 
+		// 전체 차량들에  대해 Mandatory LC 처리	
+		Evaluate_MLC(v);	 
 	 		
-			//  각 링크별로 처리  
-			for (int current_link = 0; current_link < sizeof(l);i + current_link++) {			 				
-				// Optioanl LC 처리
-				Evlauate_OLC(v,current_link);
+		//  각 링크별로 처리  
+		for (int current_link = 0; current_link < sizeof(l);i + current_link++) {			 				
+			// Optioanl LC 처리
+			Evlauate_OLC(v,l[current_link]);
 			
-				//CTM SIM 처리    
-				CFsim(current_link);
+			//CTM SIM 처리    
+			CFsim(l[current_link]);
 
 			
-				// 링크별 결과 전송
+			// 링크별 결과 전송
 
-			}
+		}
 																	
 
-			//전체 차량들에대해 셀이동 처리  
-			Vehicle_Move(v);				
+		//전체 차량들에대해 셀이동 처리  
+		Vehicle_Move(v);				
 								
 										
 	}
