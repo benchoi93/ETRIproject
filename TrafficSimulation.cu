@@ -31,10 +31,8 @@ works to do
 
 
 
-
 int w = 15;
 int dt = 5;
-
 
 int maxNconst = 20;
 float maxYconst = 1800;
@@ -42,16 +40,7 @@ float Vfconst = 50;
 float CellLengthconst = 100;
 
 
-int m = 6; //number of cells in current link
-int l = 4; //maximum number of lanes in current link
-
-/*
-link newlink;
-newlink.NoLane = 4;
-newlink.NoCell = 6;
-*/
-
-double CFsim(newlink, w, dt)
+void CFsim(newlink, w, dt)
 {
 	int N = newlink.N;
 	int maxN = newlink.maxN;
@@ -78,16 +67,9 @@ double CFsim(newlink, w, dt)
 				Y[m][l] = min( min( Lmin/L[m] * N[m][l], maxY[m][l]), 
 						min( maxY[m][l+1], w * dt / L * (maxN[m][l] - N[m][l] ));
 			}
-		
 		N[m][l] += Y[m][l]
-		
 		}
-
 	}
-
-
-
-	return();
 }
 
 
