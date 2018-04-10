@@ -90,28 +90,27 @@ typedef struct {
 typedef struct {
 	// current position
 	int currentLane;
-	int currentCell;
-	int currentLink;
-	int currentLinkOrder; // 
+	int currentCell;      // 현재 cell, 링크 시작점이 0,  
+	int currentLink;      // 현재 링크 ID 
+	int currentLinkOrder; // path[]에서 현재 링크 순서  
 	// int distanceToNode;
 
 	int type;
 	
 	int MandatoryLC;
-	int moveForward;
-	int moveRight;
-	int moveLeft;
+	int moveForward;  // 1이면 시뮬레이션 시 다음셀로 차량을 이동할 필요  
 	
 //	int freeflowspeed;
 //	int minSpacing;
 //	int reactionTime;
 //	int driving_moment;
-//	int lane_change;
+	
+	int lanechange;  // 1이면 오른쪽으로 차로변경, -1이면 왼쪽으로 변경이 필요 
 	
 	int path[20];  // Array of Links EX) [15, 17, 19,...,0,0] 
-	int NoLinksinPath;  //size of array path path[NoLinksinPath]
-	int targetLane1[]; // minimum Target Lane  EX) 2
-	int targetLane2[]; // max Target Lane  Ex) 3
+	int NoLinksinPath;  //size of array path path[NoLinksinPath]  path 의 데이터 크기 
+	int targetLane1[]; // minimum Target Lane  EX) 2  타겟 레인의 하한값 설정
+	int targetLane2[]; // max Target Lane  Ex) 3   타겟 레인 가안 값 설정 
 	
 	
 } vehicle;
