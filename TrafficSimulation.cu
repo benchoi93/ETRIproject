@@ -2,6 +2,20 @@
 #include <stdio.h>
 
 
+/*
+works to do
+1. longitudinal movement function
+ --> based on CTM function
+ --> function 
+    --> input : (N, maxN, vf, maxY, w{wave speed}, dt)
+    --> output : y {array}
+ 
+2. lateral movement function
+ --> LC probability : logit function (~ speed diff. / vf)
+ 
+3. vehicle transmission function
+*/
+
 /*typedef struct {
 	// about link
 	int linkID;
