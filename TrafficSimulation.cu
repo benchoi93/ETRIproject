@@ -33,6 +33,18 @@
 } lane_cell;
 */
 
+typedef struct {
+	int NoLane;
+	int NoCell;
+	int N[,];
+	int LC_left[,];
+	int LC_Right[,];
+	float V[,];
+	int MaxN[,];
+	
+	
+} link
+
 
 // hello this 
 
