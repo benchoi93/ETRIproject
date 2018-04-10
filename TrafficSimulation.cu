@@ -62,7 +62,7 @@ typedef struct {
 	int NoCell;
 	int N[][];  		// 2D Array [NoCell	,NoLane]
 	int MaxN[][];		// 2D Array [NoCell	,NoLane]
-	int LC_left[][]; 	// 2D Array [NoCell	,NoLane]
+	int LC_Left[][]; 	// 2D Array [NoCell	,NoLane]
 	int LC_Right[][]; 	// 2D Array [NoCell	,NoLane]
 	float V[][];		// 2D Array [NoCell	,NoLane]
 	float Vf[][];		// 2D Array [NoCell	,NoLane]
@@ -142,53 +142,20 @@ __global__ void simulationStep(int loop_limit, link *l, node *n,
 	// simulation time
 		for (int current = 0; current < loop_limit; current++) {
 			
-			// ------------------------------------------------------------------------------------------------------------
-			// Vehicle 데이터베이스 전체를 시작전에 처리 
-			
-			for(int vehID = 0; vehID < sizeof(v); vehID++){
+	
+	 		// Madatory LC 처리	
+			Evaluate_MLC(v);	  	
 				
-				// --------------------------------------------------------------------------------------------------
-				// Mandatory Lane Change 대상 차량 선정 및 차량 데이터베이스에 차로변경 플래그(veh.lanechange) 설정 
-				// --------------------------------------------------------------------------------------------------
-				
-				veh=v(vehID); // 차량데이터 베이스에서  가지고 오기 
-				
-				int TargetLaneLeft=veh.targetLane1[veh.currentLinkOrder];  // 타겟 레인 하한 가지고 오기 
-				int TargetLaneRight=veh.targetLane2[veh.currentLinkOrder];  // 타겟 레인 상한 가지고 오기 
-				
-				if(veh.currentLane < TargetLaneLeft){veh.lanechange=1;}     // 오른쪽으로 차로 변경이 필요 
-				elseif(veh.currentLane < TargetLaneLeft) {veh.lanechange=-1;}  // 왼쪽으로 차로 변경이 필요
-				else (veh.lanechange=0;) 
-					
-				// --------------------------------------------------------------------------------------------------
-				
-					
-					
-			}
+			// Optioanl LC 처리
+			Evlauate_OLC(v,l);
 			
-			// --------------------------------------------------------------------------------------------------
-			
-			
-			
-			
-				// if vehicle 
-				
-		
-				
-				// Optional LC 
-				
-			
-			
+			// 
 			
 			
 			for (int current_link = 0; current_link < sizeof(linkcell);
 					i + current_link++) {
 				
-			//Lane Change Execution	
-				
-				
-				
-				
+	
 
 				// update v <= v_agent + v
 				link[current_link].speed = 60 * link[current_link].numberOfVehicle;
@@ -208,44 +175,75 @@ __global__ void simulationStep(int loop_limit, link *l, node *n,
 			}
 										
 										
-			// Vehile Update 
-										
-			// 
-			for(int vehID = 0; vehID<size(v); vehID++){
-				vehicle_move(veh);				
-			}							
+
+			
+				Vehicle_Move(v);				
+								
 										
 	}
 }
+
+void Evaluate_MLC(vehicle* v){
+
+	// --------------------------------------------------------------------------------------------------
+	// Mandatory Lane Change 대상 차량 선정 및 차량 데이터베이스에 차로변경 플래그(veh.lanechange) 설정 
+	// --------------------------------------------------------------------------------------------------
+	for(int vehID = 0; vehID < sizeof(v); vehID++){
+		vehcle veh=v[vehID]; // 차량데이터 베이스에서 가지고 오기 
+				
+		int TargetLaneLeft=veh.targetLane1[veh.currentLinkOrder];  // 타겟 레인 하한 가지고 오기 
+		int TargetLaneRight=veh.targetLane2[veh.currentLinkOrder];  // 타겟 레인 상한 가지고 오기 
+				
+		if(veh.currentLane < TargetLaneLeft){veh.lanechange=1;}     // 오른쪽으로 차로 변경이 필요 
+		elseif(veh.currentLane < TargetLaneLeft) {veh.lanechange=-1;}  // 왼쪽으로 차로 변경이 필요
+		else (veh.lanechange=0;) 
+	}				
+	// --------------------------------------------------------------------------------------------------
+}
+
+void Evaluate_OLC(vehicle* v, link* l){
+
+	// --------------------------------------------------------------------------------------------------
+	// Optional Lane Change 대상 차량 선정 및 차량 데이터베이스에 차로변경 플래그(veh.lanechange) 설정 
+	// --------------------------------------------------------------------------------------------------
+				
+	// --------------------------------------------------------------------------------------------------
+	
+	// LC Matrix 설정 
+		
+	LC_Left 
+	LC_Right
+}
 										
-int vehicle_move(vehicle veh){
-
-	// --------------------------------------------------------------------------------------------------
-	// 차로변경이 있는 경우 차량의 현재 Cell과 링크를 업데이트 한다.
-	//--------------------------------------------------------------------------------------------------
-	if (veh.Lanechange = +1) {}	// Move vehicle to left lane 
-	if (veh.Lanechange = -1) {} 	// Move vehicle to Right lane 	
-	if (veh.moveforward = 1) {}     // Move vehicle to frent cell
+void Vehicle_Move(vehicle* v){
 	
-	// --------------------------------------------------------------------------------------------------
+	for(int vehID = 0; vehID < sizeof(v); vehID++){
+		vehcle veh=v[vehID]; // 차량데이터 베이스에서  가지고 오기 	
+		// --------------------------------------------------------------------------------------------------
+		// 차로변경이 있는 경우 차량의 현재 Cell과 링크를 업데이트 한다.
+		//--------------------------------------------------------------------------------------------------
+		if (veh.Lanechange = +1) {}	// Move vehicle to left lane 
+		if (veh.Lanechange = -1) {} 	// Move vehicle to Right lane 	
+		if (veh.moveforward = 1) {}     // Move vehicle to frent cell
 	
+		// --------------------------------------------------------------------------------------------------
+		
 
-	// --------------------------------------------------------------------------------------------------
-	// 차량이 다음셀로 전진하는 경우 차량의 현재 Cell과 링크를 업데이트 한다.
-	//--------------------------------------------------------------------------------------------------
-	if (veh.moveForward==1){
+		// --------------------------------------------------------------------------------------------------
+		// 차량이 다음셀로 전진하는 경우 차량의 현재 Cell과 링크를 업데이트 한다.
+		//--------------------------------------------------------------------------------------------------
+		if (veh.moveForward==1){
 			if((veh.currentCell == l[veh.currentLink].NoCell)) { // 현재 셀이 링크의 마지막셀인 경우 
 				veh.currentLinkOrder++; // Path의 현재 링크 순서를 1 증가 
 				veh.currentLink = veh.path[currentLinkOrder];
 				veh.currentCell= 0;  // Cell position을 링크 시작점으로 
 			} else {
 				veh.currentCell++;   //마지막 셀이 아니면, 다음 셀로 차량을 옮긴다.
-				}
 			}
+		}
+	}
 	// --------------------------------------------------------------------------------------------------
-				
 
-	return 1;
 }								
 						
 
