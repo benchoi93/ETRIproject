@@ -190,7 +190,9 @@ void CFsim(link* l){
 	
 	int cell;
 	int lane;
+	
 
+	
 	for (cell = 0; cell < NoCell; cell++) {
 		for (lane = 0; lane < NoLane; lane++) {
 			if (cell == 0) {
@@ -202,6 +204,7 @@ void CFsim(link* l){
 		N[cell][lane] += Y[cell][lane];
 		}
 	}
+	//움직일 vehicle들의 moveForward를 1로 바꿈
 }
 
 
