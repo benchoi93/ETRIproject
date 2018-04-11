@@ -151,20 +151,18 @@ __global__ void simulationStep(int loop_limit, link *l, node *n,
 		// 전체 차량들에  대해 Mandatory LC 처리	
 		Evaluate_MLC(v,l);	 
 	 		
-		//  각 링크별로 처리  
 					 				
-		// Optioanl LC 처리
+		// 각 링크l[i]별로 Optioanl LC 처리
 		Evlauate_OLC(v,l[i]);
 			
-		//CTM SIM 처리    
+		//각 링크l[i]별로 CTM SIM 처리    
 		CFsim(l[i]);
 
 			
 		// 링크별 결과 전송
 
 		
-																	
-
+																
 		//전체 차량들에대해 셀이동 처리  
 		Vehicle_Move(v);				
 								
@@ -282,7 +280,7 @@ int main(void) {
 
 	// set data size
 	int numLink = 16, gpuBlockSize = 4, linkSize = sizeof(link),
-			numBytes = numLaneCell * linkSize, gpuGridSize = numLaneCell
+			numBytes = numLink * linkSize, gpuGridSize = numLink
 					/ gpuBlockSize;
 	int numNode = 16, nodeSize = sizeof(node), numNodesBytes = numNode
 			* nodeSize;
@@ -297,7 +295,7 @@ int main(void) {
 			* lcSize;
 
 	// allocate memory
-	link *cpuLinkArray, *gpuLCArray;
+	link *cpuLinkArray, *gpuLinkArray;
 	node *cpuNodeArray, *gpuNodeArray;
 	vehicle *cpuVehicleArray, *gpuVehicleArray;
 	link *cpuResultArray, *gpuResultArray;
