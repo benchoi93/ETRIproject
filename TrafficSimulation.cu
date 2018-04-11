@@ -77,7 +77,8 @@ typedef struct {
 	float MaxY[NoCell+1][NoLane];		// 2D Array [NoCell	,NoLane]
 	float CellLength[NoCell];
 	float Vf;                               // Free flow speed 	
-		
+	int veh[NoCell][NoLane][20];	        // vehID per each cell
+	
 	int NextLink[NoLane]
 	int NextLane[NoLane]
 		
@@ -148,7 +149,7 @@ __global__ void simulationStep(int loop_limit, link *l, node *n,
 	for (int current = 0; current < loop_limit; current++) {
 			
 		// 전체 차량들에  대해 Mandatory LC 처리	
-		Evaluate_MLC(v);	 
+		Evaluate_MLC(v,l);	 
 	 		
 		//  각 링크별로 처리  
 					 				
@@ -188,13 +189,9 @@ void CFsim(link* l){
 	
 	float Lmin = Vf/3.6 * dt;
 	
-	int cell;
-	int lane;
 	
-
-	
-	for (cell = 0; cell < NoCell; cell++) {
-		for (lane = 0; lane < NoLane; lane++) {
+	for (int cell = 0; cell < NoCell; cell++) {
+		for (int lane = 0; lane < NoLane; lane++) {
 			if (cell == 0) {
 				Y[cell][lane] = 1;
 			} else if {
@@ -204,11 +201,11 @@ void CFsim(link* l){
 		N[cell][lane] += Y[cell][lane];
 		}
 	}
-	//움직일 vehicle들의 moveForward를 1로 바꿈
+	
 }
 
 
-void Evaluate_MLC(vehicle* v){
+void Evaluate_MLC(vehicle* v, link *l){
 
 	// --------------------------------------------------------------------------------------------------
 	// Mandatory Lane Change 대상 차량 선정 및 차량 데이터베이스에 차로변경 플래그(veh.lanechange) 설정 
@@ -219,8 +216,13 @@ void Evaluate_MLC(vehicle* v){
 		int TargetLaneLeft=veh.targetLane1[veh.currentLinkOrder];  // 타겟 레인 하한 가지고 오기 
 		int TargetLaneRight=veh.targetLane2[veh.currentLinkOrder];  // 타겟 레인 상한 가지고 오기 
 				
-		if(veh.currentLane < TargetLaneLeft){veh.lanechange=1;}     // 오른쪽으로 차로 변경이 필요 
-		elseif(veh.currentLane < TargetLaneLeft) {veh.lanechange=-1;}  // 왼쪽으로 차로 변경이 필요
+		if(veh.currentLane < TargetLaneLeft){
+			veh.lanechange=1;
+			l[veh.currentLink].LC_Left[veh.currentCell][veh.currentLane]=1;
+		}     // 오른쪽으로 차로 변경이 필요 
+		elseif(veh.currentLane < TargetLaneLeft) {
+			veh.lanechange=-1;
+			l[veh.currentLink].LC_Righft[veh.currentCell][veh.currentLane]=1;}  // 왼쪽으로 차로 변경이 필요
 		else (veh.lanechange=0;) 
 	}				
 	// --------------------------------------------------------------------------------------------------
@@ -231,13 +233,14 @@ void Evaluate_OLC(vehicle* v, link* l){
 	// --------------------------------------------------------------------------------------------------
 	// Optional Lane Change 대상 차량 선정 및 차량 데이터베이스에 차로변경 플래그(veh.lanechange) 설정 
 	// --------------------------------------------------------------------------------------------------
-	
-	
+		
 	for (int cell = 0; cell<l.NoCell; cell++){
 		for(int lane =2; lane <l.NoLane; lane++){
-			l.LC_Left[cell][lane]=((l.V[cell][lane-1] - l.V[cell][lane])/l.Vf);		
+			l.LC_Left[cell][lane]+=round((l.V[cell][lane-1] - l.V[cell][lane])/l.Vf);		
 		}
 	}
+	
+	
 	
 }
 										
