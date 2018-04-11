@@ -76,7 +76,7 @@ typedef struct {
 	float Y[NoCell+1][NoLane];		// 2D Array [NoCell+1	,NoLane]
 	float MaxY[NoCell+1][NoLane];		// 2D Array [NoCell	,NoLane]
 	float CellLength[NoCell];
-		
+	float Vf;                               // Free flow speed 	
 		
 	int NextLink[NoLane]
 	int NextLane[NoLane]
@@ -151,17 +151,17 @@ __global__ void simulationStep(int loop_limit, link *l, node *n,
 		Evaluate_MLC(v);	 
 	 		
 		//  각 링크별로 처리  
-		for (int current_link = 0; current_link < sizeof(l);i + current_link++) {			 				
-			// Optioanl LC 처리
-			Evlauate_OLC(v,l[current_link]);
+					 				
+		// Optioanl LC 처리
+		Evlauate_OLC(v,l[i]);
 			
-			//CTM SIM 처리    
-			CFsim(l[current_link]);
+		//CTM SIM 처리    
+		CFsim(l[i]);
 
 			
-			// 링크별 결과 전송
+		// 링크별 결과 전송
 
-		}
+		
 																	
 
 		//전체 차량들에대해 셀이동 처리  
@@ -231,13 +231,14 @@ void Evaluate_OLC(vehicle* v, link* l){
 	// --------------------------------------------------------------------------------------------------
 	// Optional Lane Change 대상 차량 선정 및 차량 데이터베이스에 차로변경 플래그(veh.lanechange) 설정 
 	// --------------------------------------------------------------------------------------------------
-				
-	// --------------------------------------------------------------------------------------------------
 	
-	// LC Matrix 설정 
-		
-	LC_Left 
-	LC_Right
+	
+	for (int cell = 0; cell<l.NoCell; cell++){
+		for(int lane =2; lane <l.NoLane; lane++){
+			l.LC_Left[cell][lane]=((l.V[cell][lane-1] - l.V[cell][lane])/l.Vf);		
+		}
+	}
+	
 }
 										
 void Vehicle_Move(vehicle* v){
