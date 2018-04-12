@@ -148,7 +148,7 @@ __global__ void simulationStep(int loop_limit, link *l, node *n,
 	// simulation time
 	for (int current = 0; current < loop_limit; current++) {
 			
-		// 전체 차량들에  대해 Mandatory LC 처리	
+		// 각 링크l[i]별로 Mandatory LC 처리	
 		Evaluate_MLC(l[i]);	 
 	 		
 					 				
