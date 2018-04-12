@@ -36,39 +36,12 @@ double maxYconst = 1800;
 double Vfconst = 50;
 double CellLengthconst = 100;
 
-/*typedef struct {
-	// about link
-	int linkID;
-	int fromNode;
-	int toNode;
-	int speedlimit;
-	int roadlevel;	// 고속국도, 국도, 지방도
-	int road_type;
-	// about section
-	int sectionID;
-	int no_lanes;
-	int cell_id;
-	int speed;
-	int numberOfVehicle;
-	int length;
-	int nextSectionID;
-	int startSectionID;
-	int endSectionID;
-	int distanceToNode;
-	int busLane;
-	// yin
-	int y_in;
-	// lane_change
-	// int lane_change;		// no need
-	// insert vehicle
-} lane_cell;
-*/
 
 typedef struct {
 	
 	int NoLane;  	 //INPUT argument 
-	int NoCell;     //INPUT argument 
-	int VehMax=20;    //INPUT argument 
+	int NoCell;      //INPUT argument 
+	int VehMax;      //INPUT argument 
 	
 	int N[NoCell][NoLane];  		// 2D Array [NoCell	,NoLane]
 	int MaxN[NoCell][NoLane];		// 2D Array [NoCell	,NoLane]
@@ -80,16 +53,19 @@ typedef struct {
 	double CellLength[NoCell];
 	double Vf;// Free flow speed 	
 	
-	// 재고
+	// Vehicle Move 관련 
 	int veh[NoCell+2][NoLane][VehMax];		// vehID per each cell (include buffer cell)
-	int vehLetLC[NoCell+2][NoLane][VehMax];
-	int vehReftLC[NoCell+2][NoLane][VehMax];
-	int vehMLC[NoCell+2][NoLane][VehMax];
-	int vehMoveForward[NoCell+2][NoLane][VehMax];
-
+	int vehMLC[NoCell+2][NoLane][VehMax];    	// 1이면 오른쪽으로차로변경,-1이면 왼쪽으로 변경
+	int vehOLC[NoCell+2][NoLane][VehMax]; 		// 1이면 오른쪽으로차로변경,-1이면 왼쪽으로 변경
+	int vehMoveForward[NoCell+2][NoLane][VehMax];   //1이면 다음셀로 전진,0이면 현재셀에 머무르기
+	
+	// Vehicle 속성중에서 MLC 관련 속성 넣기 
+	int targetLane1[NoCell+2][NoLane][VehMax]; 	// minimum Target Lane  EX) 2  타겟 레인의 하한값 설정
+	int targetLane2[NoCell+2][NoLane][VehMax]; 	// max Target Lane  Ex) 3   타겟 레인 가안 값 설정 	
 	
 	// 시그널 넣기 
-	// Vehicle 속성중에서 MLC 관련 속성 넣기 
+	int greenTime[NoLane];	 			// 1이면 Green signal, 0이면 Red signal
+	
 	// 글로벌 메모리를 잘 쓰자 -- 글로벌 메모리에서 링크 MLC 결정을 위한 차량보
 
 	int NextConnectionCell;
@@ -118,22 +94,20 @@ typedef struct {
 
 	int type;
 	
-	int MandatoryLC;
-	int moveForward;  // 1이면 시뮬레이션 시 다음셀로 차량을 이동할 필요  
+//	int MandatoryLC;
+//	int moveForward;  // 1이면 시뮬레이션 시 다음셀로 차량을 이동할 필요  
 	
 //	int freeflowspeed;
 //	int minSpacing;
 //	int reactionTime;
 //	int driving_moment;
 	
-	int lanechange;  // 1이면 오른쪽으로 차로변경, -1이면 왼쪽으로 변경이 필요 
+//	int lanechange;  // 1이면 오른쪽으로 차로변경, -1이면 왼쪽으로 변경이 필요 
 	
 	int path[20];  // Array of Link IDs EX) [15, 17, 19,...,0,0] 
 	int NoLinksinPath;  //size of array path path[NoLinksinPath]  path 의 데이터 크기 
 	int targetLane1[20]; // minimum Target Lane  EX) 2  타겟 레인의 하한값 설정
-	int targetLane2[20]; // max Target Lane  Ex) 3   타겟 레인 가안 값 설정 
-	
-	
+	int targetLane2[20]; // max Target Lane  Ex) 3   타겟 레인 가안 값 설정 	
 } vehicle;
 
 
