@@ -140,30 +140,16 @@ typedef struct {
 */
 
 typedef struct {
-	int NoLane;
-	int fromLink;
-	int toLink;
-	
-	int connectN[NoLane + 2]; 
+	int NoCell;   			// 전체 커넥션 수 
+	int VxMax;
+	int fromLinkID[NoCell];  	// 커넥션의 fromLink ID
+	int toLinkID[NoCell];           // 커넥션의 toLink ID
+	int veh[NoCell][VehMax];        // 커넥션상의 차량 ID  
+
+	int greenTime[NoCell];	         //각 커넥션의 한 시뮬레이션 스텝 중의 신호 1: Green, 0: Red
 
 } cennection_cell;
 
-
-
-typedef struct {
-	int startLinkID;
-	int startSectionID;
-	int startLaneID;
-	int endLinkID;
-	int endSectionID;
-	int endLaneID;
-
-	int greenTime;
-	int LeftTime;
-	int yellowTime;
-	int redTime;
-	int offset;
-} turning_info;
 
 __global__ void simulationStep(int loop_limit, link *l, node *n,
 		vehicle *v) {
@@ -201,12 +187,14 @@ __global__ void simulationStep(int loop_limit, link *l, node *n,
 		Vehicle_Move(l[i]);	
 		
 		// write vehicle in connectCell
-								
-										
+			
+		
+		//synchronize
+		__syncthreads();								
 	}
 }
 
-void CFsim(link* l){
+__device__ CFsim(link* l){
 	double w = 15;  //wave speed
 	
 	double L = l.CellLength;
@@ -229,7 +217,7 @@ void CFsim(link* l){
 }
 
 
-void Evaluate_MLC(link *l){
+__device__ Evaluate_MLC(link *l){
 
 	// --------------------------------------------------------------------------------------------------
 	// Mandatory Lane Change 대상 차량 선정 및 차량 데이터베이스에 차로변경 플래그(veh.lanechange) 설정 
@@ -256,7 +244,7 @@ void Evaluate_MLC(link *l){
 	// --------------------------------------------------------------------------------------------------
 }
 
-void Evaluate_OLC(link* l){
+__device__ Evaluate_OLC(link* l){
 
 	// --------------------------------------------------------------------------------------------------
 	// Optional Lane Change 대상 차량 선정 및 차량 데이터베이스에 차로변경 플래그(veh.lanechange) 설정 
@@ -272,7 +260,7 @@ void Evaluate_OLC(link* l){
 	
 }
 										
-void Vehicle_Move(link* l){
+__device__ Vehicle_Move(link* l){
 	
 	for(int vehID = 0; vehID < sizeof(v); vehID++){
 		vehcle veh=v[vehID]; // 차량데이터 베이스에서  가지고 오기 	
