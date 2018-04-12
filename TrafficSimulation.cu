@@ -158,7 +158,7 @@ __global__ void simulationStep(int loop_limit, link *l, node *n,
 	for (int current = 0; current < loop_limit; current++) {
 		
 		
-		// read vehicle from buffer (i'th vehicle in global memory )
+		// read vehicle from connectCell (i'th vehicle in global memory )
 		
 		
 		// 각 링크l[i]별로 Mandatory LC 처리	
@@ -166,7 +166,7 @@ __global__ void simulationStep(int loop_limit, link *l, node *n,
 	 		
 					 				
 		// 각 링크l[i]별로 Optioanl LC 처리
-		Evlauate_OLC(l[i]);
+		Evalauate_OLC(l[i]);
 			
 		//각 링크l[i]별로 CTM SIM 처리    
 		CFsim(l[i]);
@@ -179,7 +179,7 @@ __global__ void simulationStep(int loop_limit, link *l, node *n,
 		//전체 차량들에대해 셀이동 처리  
 		Vehicle_Move(l[i]);	
 		
-		// 
+		// write vehicle in connectCell
 								
 										
 	}
@@ -198,12 +198,8 @@ void CFsim(link* l){
 	
 	for (int cell = 0; cell < l.NoCell; cell++) {
 		for (int lane = 0; lane < l.NoLane; lane++) {
-			if (cell == 0) {
-				l.Y[cell][lane] = 1;
-			} else if {
-				l.Y[cell][lane] = min( min( Lmin/L[cell] * l.N[cell][lane], l.maxY[cell][lane]), 
-						min( l.maxY[cell][lane+1], w * dt / L * (l.maxN[cell][lane] - l.N[cell][lane] ));
-			}
+			l.Y[cell][lane] = min( min( Lmin/L[cell] * l.N[cell][lane], l.maxY[cell][lane]), 
+					min( l.maxY[cell][lane+1], w * dt / L * (l.maxN[cell][lane] - l.N[cell][lane] ));
 		l.N[cell][lane] += l.Y[cell][lane];
 		}
 	}
