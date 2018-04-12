@@ -65,8 +65,11 @@ double CellLengthconst = 100;
 */
 
 typedef struct {
-	int NoLane;
-	int NoCell;
+	
+	int NoLane;  	 //INPUT argument 
+	int NoCell;     //INPUT argument 
+	int VehMax=20;    //INPUT argument 
+	
 	int N[NoCell][NoLane];  		// 2D Array [NoCell	,NoLane]
 	int MaxN[NoCell][NoLane];		// 2D Array [NoCell	,NoLane]
 	int LC_Left[NoCell][NoLane]; 		// 2D Array [NoCell	,NoLane]
@@ -75,16 +78,29 @@ typedef struct {
 	double Y[NoCell+1][NoLane];		// 2D Array [NoCell+1	,NoLane]
 	double MaxY[NoCell+1][NoLane];		// 2D Array [NoCell	,NoLane]
 	double CellLength[NoCell];
-	double Vf;				// Free flow speed 	
-	int veh[NoCell+2][NoLane][20];		// vehID per each cell (include buffer cell)
+	double Vf;// Free flow speed 	
 	
-	int NextLink[NoLane]
-	int NextLane[NoLane]
+	// 재고
+	int veh[NoCell+2][NoLane][VehMax];		// vehID per each cell (include buffer cell)
+	int vehLetLC[NoCell+2][NoLane][VehMax];
+	int vehReftLC[NoCell+2][NoLane][VehMax];
+	int vehMLC[NoCell+2][NoLane][VehMax];
+	int vehMoveForward[NoCell+2][NoLane][VehMax];
+
+	
+	// 시그널 넣기 
+	// Vehicle 속성중에서 MLC 관련 속성 넣기 
+	// 글로벌 메모리를 잘 쓰자 -- 글로벌 메모리에서 링크 MLC 결정을 위한 차량보
+
+	int NextConnectionCell;
+	int PreviousConnectionCell;
 		
 } link;
 
 
 typedef struct {
+	
+	
 	int nodeID;
 	int type; 	// intersection, source, sink
 	int speedlimit;
@@ -200,7 +216,8 @@ void CFsim(link* l){
 		for (int lane = 0; lane < l.NoLane; lane++) {
 			l.Y[cell][lane] = min( min( Lmin/L[cell] * l.N[cell][lane], l.maxY[cell][lane]), 
 					min( l.maxY[cell][lane+1], w * dt / L * (l.maxN[cell][lane] - l.N[cell][lane] ));
-		l.N[cell][lane] += l.Y[cell][lane];
+		// moveforward flag update
+					      
 		}
 	}
 	
@@ -268,11 +285,22 @@ void Vehicle_Move(link* l){
 		// 차량이 다음셀로 전진하는 경우 차량의 현재 Cell과 링크를 업데이트 한다.
 		//--------------------------------------------------------------------------------------------------
 		if (veh.moveForward==1){
-			if((veh.currentCell == l[veh.currentLink].NoCell)) { // 현재 셀이 링크의 마지막셀인 경우 
+			
+			//글로벌 메모리의 Vehicle 정보를 업데이트 
+			
+			if((veh.currentCell == l[veh.currentLink].NoCell)) { 
+				//connection Cell로 바꾸기
+				
+				// 현재 셀이 링크의 마지막셀인 경우 
 				veh.currentLinkOrder++; // Path의 현재 링크 순서를 1 증가 
 				veh.currentLink = veh.path[currentLinkOrder];
-				veh.currentCell= 0;  // Cell position을 링크 시작점으로 
+				veh.currentCell= 0;  // Cell position을 링크 시작점으로 \
+				
+				
 			} else {
+				// N Update  
+				
+				
 				veh.currentCell++;   //마지막 셀이 아니면, 다음 셀로 차량을 옮긴다.
 			}
 		}
