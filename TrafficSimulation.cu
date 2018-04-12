@@ -32,9 +32,9 @@ works to do
 int dt = 5;     //time step
 
 int maxNconst = 20;
-float maxYconst = 1800;
-float Vfconst = 50;
-float CellLengthconst = 100;
+double maxYconst = 1800;
+double Vfconst = 50;
+double CellLengthconst = 100;
 
 /*typedef struct {
 	// about link
@@ -71,12 +71,12 @@ typedef struct {
 	int MaxN[NoCell][NoLane];		// 2D Array [NoCell	,NoLane]
 	int LC_Left[NoCell][NoLane]; 	// 2D Array [NoCell	,NoLane]
 	int LC_Right[NoCell][NoLane]; 	// 2D Array [NoCell	,NoLane]
-	float V[NoCell][NoLane];		// 2D Array [NoCell	,NoLane]
-	float Vf[NoCell][NoLane];		// 2D Array [NoCell	,NoLane]
-	float Y[NoCell+1][NoLane];		// 2D Array [NoCell+1	,NoLane]
-	float MaxY[NoCell+1][NoLane];		// 2D Array [NoCell	,NoLane]
-	float CellLength[NoCell];
-	float Vf;                               // Free flow speed 	
+	double V[NoCell][NoLane];		// 2D Array [NoCell	,NoLane]
+	//double Vf[NoCell][NoLane];		// 2D Array [NoCell	,NoLane]
+	double Y[NoCell+1][NoLane];		// 2D Array [NoCell+1	,NoLane]
+	double MaxY[NoCell+1][NoLane];		// 2D Array [NoCell	,NoLane]
+	double CellLength[NoCell];
+	double Vf;                               // Free flow speed 	
 	int veh[NoCell][NoLane][20];	        // vehID per each cell
 	
 	int NextLink[NoLane]
@@ -149,7 +149,7 @@ __global__ void simulationStep(int loop_limit, link *l, node *n,
 	for (int current = 0; current < loop_limit; current++) {
 			
 		// 각 링크l[i]별로 Mandatory LC 처리	
-		Evaluate_MLC(l[i]);	 
+		Evaluate_MLC(l[i]);	 // 
 	 		
 					 				
 		// 각 링크l[i]별로 Optioanl LC 처리
@@ -175,17 +175,17 @@ void CFsim(link* l){
 	
 	int N = l.N;
 	int maxN = l.maxN;
-	float Y = l.Y;
-	float maxY = l.maxY;
-	float V = l.V;
-	float Vf = l.Vf;
+	double Y = l.Y;
+	double maxY = l.maxY;
+	double V = l.V;
+	double Vf = l.Vf;
 
-	float L = l.CellLength;
+	double L = l.CellLength;
 	
 	int NoCell = l.NoCell;
 	int NoLane = l.NoLane;
 	
-	float Lmin = Vf/3.6 * dt;
+	double Lmin = Vf/3.6 * dt;
 	
 	
 	for (int cell = 0; cell < NoCell; cell++) {
