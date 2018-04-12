@@ -136,19 +136,17 @@ typedef struct {
 	
 } vehicle;
 
-/* 
-*/
 
 typedef struct {
-	int NoCell;   			// 전체 커넥션 수 
-	int VxMax;
-	int fromLinkID[NoCell];  	// 커넥션의 fromLink ID
-	int toLinkID[NoCell];           // 커넥션의 toLink ID
-	int veh[NoCell][VehMax];        // 커넥션상의 차량 ID  
+	int NoConnection;   			// 전체 커넥션 수 INPUT argument 
+	int VehMax;                     	// 커넥션의 차량 수  
+	int fromLinkID[NoConnection];  		// 커넥션의 fromLink ID
+	int toLinkID[NoConnection];           	// 커넥션의 toLink ID
+	int veh[NoConnection][VehMax];        	// 커넥션상의 차량 ID  
 
-	int greenTime[NoCell];	         //각 커넥션의 한 시뮬레이션 스텝 중의 신호 1: Green, 0: Red
+	int greenTime[NoConnection];	         //각 커넥션의 한 시뮬레이션 스텝 중의 신호 1: Green, 0: Red
 
-} cennection_cell;
+} cennection_cell;				// 커넥션은 글로벌 메모리상에서 상주하여, 링크의 아웃풋 데이터들을 다음 링크와 공유할수 있도록 해준다. 
 
 
 __global__ void simulationStep(int loop_limit, link *l, node *n,
