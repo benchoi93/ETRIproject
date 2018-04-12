@@ -175,6 +175,11 @@ __global__ void simulationStep(int loop_limit, link *l, node *n,
 		
 		
 		// read vehicle from connectCell (i'th vehicle in global memory )
+		//NextCoonectionCell에서 signal 정보 읽어오기 => link
+		
+		
+		//Previous ConnectionCell에서 Input 읽어오기 => link
+		
 		
 		
 		// 각 링크l[i]별로 Mandatory LC 처리	
