@@ -149,11 +149,11 @@ __global__ void simulationStep(int loop_limit, link *l, node *n,
 	for (int current = 0; current < loop_limit; current++) {
 			
 		// 전체 차량들에  대해 Mandatory LC 처리	
-		Evaluate_MLC(v,l);	 
+		Evaluate_MLC(l[i]);	 
 	 		
 					 				
 		// 각 링크l[i]별로 Optioanl LC 처리
-		Evlauate_OLC(v,l[i]);
+		Evlauate_OLC(l[i]);
 			
 		//각 링크l[i]별로 CTM SIM 처리    
 		CFsim(l[i]);
@@ -203,25 +203,29 @@ void CFsim(link* l){
 }
 
 
-void Evaluate_MLC(vehicle* v, link *l){
+void Evaluate_MLC(link *l){
 
 	// --------------------------------------------------------------------------------------------------
 	// Mandatory Lane Change 대상 차량 선정 및 차량 데이터베이스에 차로변경 플래그(veh.lanechange) 설정 
 	// --------------------------------------------------------------------------------------------------
-	for(int vehID = 0; vehID < sizeof(v); vehID++){
-		vehcle veh=v[vehID]; // 차량데이터 베이스에서 가지고 오기 
+	for(int cell = 0; cell < l.NoCell; cell++){
+		for(int lane = 0; lane < l.NoLane; lane++){
+			for (i =0 ; i < 20; i++){
+				vehcle veh=l.veh[cell][lane]; // 차량데이터 가지고 오기 
 				
-		int TargetLaneLeft=veh.targetLane1[veh.currentLinkOrder];  // 타겟 레인 하한 가지고 오기 
-		int TargetLaneRight=veh.targetLane2[veh.currentLinkOrder];  // 타겟 레인 상한 가지고 오기 
+				int TargetLaneLeft=veh.targetLane1[veh.currentLinkOrder];  // 타겟 레인 하한 가지고 오기 
+				int TargetLaneRight=veh.targetLane2[veh.currentLinkOrder];  // 타겟 레인 상한 가지고 오기 
 				
-		if(veh.currentLane < TargetLaneLeft){
-			veh.lanechange=1;
-			l[veh.currentLink].LC_Left[veh.currentCell][veh.currentLane]=1;
-		}     // 오른쪽으로 차로 변경이 필요 
-		elseif(veh.currentLane < TargetLaneLeft) {
-			veh.lanechange=-1;
-			l[veh.currentLink].LC_Righft[veh.currentCell][veh.currentLane]=1;}  // 왼쪽으로 차로 변경이 필요
-		else (veh.lanechange=0;) 
+				if(veh.currentLane < TargetLaneLeft){
+					veh.lanechange=1;
+					l[veh.currentLink].LC_Left[veh.currentCell][veh.currentLane]=1;
+				}     // 오른쪽으로 차로 변경이 필요 
+				elseif(veh.currentLane < TargetLaneLeft) {
+					veh.lanechange=-1;
+					l[veh.currentLink].LC_Righft[veh.currentCell][veh.currentLane]=1;}  // 왼쪽으로 차로 변경이 필요
+				else (veh.lanechange=0;) 
+			}
+		}
 	}				
 	// --------------------------------------------------------------------------------------------------
 }
