@@ -69,15 +69,14 @@ typedef struct {
 	int NoCell;
 	int N[NoCell][NoLane];  		// 2D Array [NoCell	,NoLane]
 	int MaxN[NoCell][NoLane];		// 2D Array [NoCell	,NoLane]
-	int LC_Left[NoCell][NoLane]; 	// 2D Array [NoCell	,NoLane]
-	int LC_Right[NoCell][NoLane]; 	// 2D Array [NoCell	,NoLane]
+	int LC_Left[NoCell][NoLane]; 		// 2D Array [NoCell	,NoLane]
+	int LC_Right[NoCell][NoLane]; 		// 2D Array [NoCell	,NoLane]
 	double V[NoCell][NoLane];		// 2D Array [NoCell	,NoLane]
-	//double Vf[NoCell][NoLane];		// 2D Array [NoCell	,NoLane]
 	double Y[NoCell+1][NoLane];		// 2D Array [NoCell+1	,NoLane]
 	double MaxY[NoCell+1][NoLane];		// 2D Array [NoCell	,NoLane]
 	double CellLength[NoCell];
-	double Vf;                               // Free flow speed 	
-	int veh[NoCell][NoLane][20];	        // vehID per each cell
+	double Vf;				// Free flow speed 	
+	int veh[NoCell+2][NoLane][20];		// vehID per each cell (include buffer cell)
 	
 	int NextLink[NoLane]
 	int NextLane[NoLane]
@@ -124,6 +123,16 @@ typedef struct {
 /* 
 */
 
+typedef struct {
+	int NoLane;
+	int fromLink;
+	int toLink;
+	
+	int connectN[NoLane + 2]; 
+
+} cennection_cell;
+
+
 
 typedef struct {
 	int startLinkID;
@@ -147,7 +156,11 @@ __global__ void simulationStep(int loop_limit, link *l, node *n,
 
 	// simulation time
 	for (int current = 0; current < loop_limit; current++) {
-			
+		
+		
+		// read vehicle from buffer (i'th vehicle in global memory )
+		
+		
 		// 각 링크l[i]별로 Mandatory LC 처리	
 		Evaluate_MLC(l[i]);	 // 
 	 		
@@ -164,7 +177,9 @@ __global__ void simulationStep(int loop_limit, link *l, node *n,
 		
 																
 		//전체 차량들에대해 셀이동 처리  
-		Vehicle_Move(v);				
+		Vehicle_Move(l[i]);	
+		
+		// 
 								
 										
 	}
@@ -173,30 +188,23 @@ __global__ void simulationStep(int loop_limit, link *l, node *n,
 void CFsim(link* l){
 	double w = 15;  //wave speed
 	
-	int N = l.N;
-	int maxN = l.maxN;
-	double Y = l.Y;
-	double maxY = l.maxY;
-	double V = l.V;
-	double Vf = l.Vf;
-
 	double L = l.CellLength;
 	
 	int NoCell = l.NoCell;
 	int NoLane = l.NoLane;
 	
-	double Lmin = Vf/3.6 * dt;
+	double Lmin = l.Vf/3.6 * dt;
 	
 	
-	for (int cell = 0; cell < NoCell; cell++) {
-		for (int lane = 0; lane < NoLane; lane++) {
+	for (int cell = 0; cell < l.NoCell; cell++) {
+		for (int lane = 0; lane < l.NoLane; lane++) {
 			if (cell == 0) {
-				Y[cell][lane] = 1;
+				l.Y[cell][lane] = 1;
 			} else if {
-				Y[cell][lane] = min( min( Lmin/L[cell] * N[cell][lane], maxY[cell][lane]), 
-						min( maxY[cell][lane+1], w * dt / L * (maxN[cell][lane] - N[cell][lane] ));
+				l.Y[cell][lane] = min( min( Lmin/L[cell] * l.N[cell][lane], l.maxY[cell][lane]), 
+						min( l.maxY[cell][lane+1], w * dt / L * (l.maxN[cell][lane] - l.N[cell][lane] ));
 			}
-		N[cell][lane] += Y[cell][lane];
+		l.N[cell][lane] += l.Y[cell][lane];
 		}
 	}
 	
@@ -211,18 +219,18 @@ void Evaluate_MLC(link *l){
 	for(int cell = 0; cell < l.NoCell; cell++){
 		for(int lane = 0; lane < l.NoLane; lane++){
 			for (i =0 ; i < 20; i++){
-				vehcle veh=l.veh[cell][lane]; // 차량데이터 가지고 오기 
+				vehcle veh=l.veh[cell][lane][i]; // 차량데이터 가지고 오기 
 				
 				int TargetLaneLeft=veh.targetLane1[veh.currentLinkOrder];  // 타겟 레인 하한 가지고 오기 
 				int TargetLaneRight=veh.targetLane2[veh.currentLinkOrder];  // 타겟 레인 상한 가지고 오기 
 				
 				if(veh.currentLane < TargetLaneLeft){
 					veh.lanechange=1;
-					l[veh.currentLink].LC_Left[veh.currentCell][veh.currentLane]=1;
+					// l.LC_Left[veh.currentCell][veh.currentLane]=1  
 				}     // 오른쪽으로 차로 변경이 필요 
-				elseif(veh.currentLane < TargetLaneLeft) {
+				else if(veh.currentLane > TargetLaneRight) {
 					veh.lanechange=-1;
-					l[veh.currentLink].LC_Righft[veh.currentCell][veh.currentLane]=1;}  // 왼쪽으로 차로 변경이 필요
+					// l[veh.currentLink].LC_Righft[veh.currentCell][veh.currentLane]=1;}  // 왼쪽으로 차로 변경이 필요
 				else (veh.lanechange=0;) 
 			}
 		}
@@ -230,15 +238,15 @@ void Evaluate_MLC(link *l){
 	// --------------------------------------------------------------------------------------------------
 }
 
-void Evaluate_OLC(vehicle* v, link* l){
+void Evaluate_OLC(link* l){
 
 	// --------------------------------------------------------------------------------------------------
 	// Optional Lane Change 대상 차량 선정 및 차량 데이터베이스에 차로변경 플래그(veh.lanechange) 설정 
 	// --------------------------------------------------------------------------------------------------
 		
 	for (int cell = 0; cell<l.NoCell; cell++){
-		for(int lane =2; lane <l.NoLane; lane++){
-			l.LC_Left[cell][lane]+=round((l.V[cell][lane-1] - l.V[cell][lane])/l.Vf);		
+		for(int lane = 1; lane <l.NoLane; lane++){
+			l.LC_Left[cell][lane] += round((l.V[cell][lane-1] - l.V[cell][lane])/l.Vf);		
 		}
 	}
 	
@@ -246,7 +254,7 @@ void Evaluate_OLC(vehicle* v, link* l){
 	
 }
 										
-void Vehicle_Move(vehicle* v){
+void Vehicle_Move(link* l){
 	
 	for(int vehID = 0; vehID < sizeof(v); vehID++){
 		vehcle veh=v[vehID]; // 차량데이터 베이스에서  가지고 오기 	
