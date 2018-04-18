@@ -140,14 +140,16 @@ __global__ void simulationStep(int loop_limit, link *l, node *n,
 		
 		
 		// 각 링크l[i]별로 Mandatory LC 처리	
-		Evaluate_MLC(l[i]);	 // 
+		Evaluate_MLC(l[i]);	 // vehicle별 MLC flag
+		MLCsim(l[i]);		// MLC 수행
 	 		
 					 				
 		// 각 링크l[i]별로 Optioanl LC 처리
 		Evalauate_OLC(l[i]);
+		OLCsim(l[i]);		// OLC 수행
 			
 		//각 링크l[i]별로 CTM SIM 처리    
-		CFsim(l[i]);
+		CFsim(l[i]);		// CTM(종방향) 수행
 
 			
 		// 링크별 결과 전송
