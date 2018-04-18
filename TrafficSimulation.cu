@@ -40,42 +40,41 @@ double CellLengthconst = 100;
 typedef struct {
 	
 	int NoLane;  	 //INPUT argument 
-	int NoCell;      //INPUT argument 
+	int NoSection;      //INPUT argument 
 	int VehMax;      //INPUT argument 
 	
-	int N[NoCell][NoLane];  		// 2D Array [NoCell	,NoLane]
-	int MaxN[NoCell][NoLane];		// 2D Array [NoCell	,NoLane]
-	int LC_Left[NoCell][NoLane]; 		// 2D Array [NoCell	,NoLane]
-	int LC_Right[NoCell][NoLane]; 		// 2D Array [NoCell	,NoLane]
-	double V[NoCell][NoLane];		// 2D Array [NoCell	,NoLane]
-	double Y[NoCell+1][NoLane];		// 2D Array [NoCell+1	,NoLane]
-	double MaxY[NoCell+1][NoLane];		// 2D Array [NoCell	,NoLane]
-	double CellLength[NoCell];
+	int N[NoSection][NoLane];  		// 2D Array [NoCell	,NoLane]
+	int MaxN[NoSection][NoLane];		// 2D Array [NoCell	,NoLane]
+	int LC_Left[NoSection][NoLane]; 		// 2D Array [NoCell	,NoLane]
+	int LC_Right[NoSection][NoLane]; 		// 2D Array [NoCell	,NoLane]
+	double V[NoSection][NoLane];		// 2D Array [NoCell	,NoLane]
+	double Y[NoSection+1][NoLane];		// 2D Array [NoCell+1	,NoLane]
+	double MaxY[NoSection+1][NoLane];		// 2D Array [NoCell	,NoLane]
+	double SectionLength[NoSection];
 	double Vf;// Free flow speed 	
 	
 	// Vehicle Move 관련 
-	int veh[NoCell+2][NoLane][VehMax];		// vehID per each cell (include buffer cell)
-	int vehMLC[NoCell+2][NoLane][VehMax];    	// 1이면 오른쪽으로차로변경,-1이면 왼쪽으로 변경
-	int vehOLC[NoCell+2][NoLane][VehMax]; 		// 1이면 오른쪽으로차로변경,-1이면 왼쪽으로 변경
-	int vehMoveForward[NoCell+2][NoLane][VehMax];   //1이면 다음셀로 전진,0이면 현재셀에 머무르기
+	int veh[NoSection+2][NoLane][VehMax];		// vehID per each cell (include buffer cell)
+	int vehMLC[NoSection+2][NoLane][VehMax];    	// 1이면 오른쪽으로차로변경,-1이면 왼쪽으로 변경
+	int vehOLC[NoSection+2][NoLane][VehMax]; 		// 1이면 오른쪽으로차로변경,-1이면 왼쪽으로 변경
+	int vehMoveForward[NoSection+2][NoLane][VehMax];   //1이면 다음셀로 전진,0이면 현재셀에 머무르기
 	
 	// Vehicle 속성중에서 MLC 관련 속성 넣기 
-	int targetLane1[NoCell+2][NoLane][VehMax]; 	// minimum Target Lane  EX) 2  타겟 레인의 하한값 설정
-	int targetLane2[NoCell+2][NoLane][VehMax]; 	// max Target Lane  Ex) 3   타겟 레인 가안 값 설정 	
+	int targetLane1[NoSection+2][NoLane][VehMax]; 	// minimum Target Lane  EX) 2  타겟 레인의 하한값 설정
+	int targetLane2[NoSection+2][NoLane][VehMax]; 	// max Target Lane  Ex) 3   타겟 레인 가안 값 설정 	
 	
 	// 시그널 넣기 
 	int greenTime[NoLane];	 			// 1이면 Green signal, 0이면 Red signal
 	
 	// 글로벌 메모리를 잘 쓰자 -- 글로벌 메모리에서 링크 MLC 결정을 위한 차량보
 
-	int NextConnectionCell;
-	int PreviousConnectionCell;
+	int NextConnectionSection;
+	int PreviousConnectionSection;
 		
 } link;
 
 
 typedef struct {
-	
 	
 	int nodeID;
 	int type; 	// intersection, source, sink
@@ -87,7 +86,7 @@ typedef struct {
 typedef struct {
 	// current position
 	int currentLane;
-	int currentCell;      // 현재 cell, 링크 시작점이 0,  
+	int currentSection;      // 현재 cell, 링크 시작점이 0,  
 	int currentLink;      // 현재 링크 ID 
 	int currentLinkOrder; // path[]에서 현재 링크 순서  
 	// int distanceToNode;
@@ -107,7 +106,7 @@ typedef struct {
 	int path[20];  // Array of Link IDs EX) [15, 17, 19,...,0,0] 
 	int NoLinksinPath;  //size of array path path[NoLinksinPath]  path 의 데이터 크기 
 	int targetLane1[20]; // minimum Target Lane  EX) 2  타겟 레인의 하한값 설정
-	int targetLane2[20]; // max Target Lane  Ex) 3   타겟 레인 가안 값 설정 	
+	int targetLane2[20]; // max Target Lane  Ex) 3   타겟 레인 상한 값 설정 	
 } vehicle;
 
 
@@ -169,18 +168,18 @@ __global__ void simulationStep(int loop_limit, link *l, node *n,
 __device__ CFsim(link* l){
 	double w = 15;  //wave speed
 	
-	double L = l.CellLength;
+	double L = l.SectionLength;
 	
-	int NoCell = l.NoCell;
+	int NoSection = l.NoSection;
 	int NoLane = l.NoLane;
 	
 	double Lmin = l.Vf/3.6 * dt;
 	
 	
-	for (int cell = 0; cell < l.NoCell; cell++) {
+	for (int section = 0; section < l.NoSection; section++) {
 		for (int lane = 0; lane < l.NoLane; lane++) {
-			l.Y[cell][lane] = min( min( Lmin/L[cell] * l.N[cell][lane], l.maxY[cell][lane]), 
-					min( l.maxY[cell][lane+1], w * dt / L * (l.maxN[cell][lane] - l.N[cell][lane] ));
+			l.Y[section][lane] = min( min( Lmin/L[section] * l.N[section][lane], l.maxY[section][lane]), 
+					min( l.maxY[section][lane+1], w * dt / L * (l.maxN[section][lane] - l.N[section][lane] ));
 		// moveforward flag update
 					      
 		}
@@ -194,10 +193,10 @@ __device__ Evaluate_MLC(link *l){
 	// --------------------------------------------------------------------------------------------------
 	// Mandatory Lane Change 대상 차량 선정 및 차량 데이터베이스에 차로변경 플래그(veh.lanechange) 설정 
 	// --------------------------------------------------------------------------------------------------
-	for(int cell = 0; cell < l.NoCell; cell++){
+	for(int section = 0; section < l.NoSection; section++){
 		for(int lane = 0; lane < l.NoLane; lane++){
-			for (i =0 ; i < 20; i++){
-				vehcle veh=l.veh[cell][lane][i]; // 차량데이터 가지고 오기 
+			for (int i =0 ; i < 20; i++){
+				vehicle veh=l.veh[section][lane][i]; // 차량데이터 가지고 오기 
 				
 				int TargetLaneLeft=veh.targetLane1[veh.currentLinkOrder];  // 타겟 레인 하한 가지고 오기 
 				int TargetLaneRight=veh.targetLane2[veh.currentLinkOrder];  // 타겟 레인 상한 가지고 오기 
@@ -222,9 +221,25 @@ __device__ Evaluate_OLC(link* l){
 	// Optional Lane Change 대상 차량 선정 및 차량 데이터베이스에 차로변경 플래그(veh.lanechange) 설정 
 	// --------------------------------------------------------------------------------------------------
 		
-	for (int cell = 0; cell<l.NoCell; cell++){
+	for (int section = 0; section<l.NoCell; section++){
 		for(int lane = 1; lane <l.NoLane; lane++){
-			l.LC_Left[cell][lane] += round((l.V[cell][lane-1] - l.V[cell][lane])/l.Vf);		
+			if (lane >0){
+				l.LC_Left[section][lane] += (l.V[section][lane-1] - l.V[section][lane])/l.Vf;	// cell별 optional LC 확률 계산 (왼쪽)
+			}
+			//if (lane <l.NoLane) {
+			//	l.LC_Right[section][lane] += (l.V[section][lane+1] - l.V[section][lane])/l.Vf;	// cell별 optional LC 확률 계산 (오른쪽)
+			//}
+			
+			for (int i = 0; i <20; i++) {
+				vehicle veh = l.veh[section][lane][i];  // 차량 데이터 가지고 오기
+				
+				srand(time(NULL));
+				float prob = (rand() % 10) / 10.;	// 차량별 OLC 확률 생성
+				
+				if (prob <= l.LC_Left[section][lane]) {
+					veh.lanechange = -1;		// 왼쪽으로 차로 변경 필요
+				}
+			
 		}
 	}
 	
