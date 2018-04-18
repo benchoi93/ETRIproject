@@ -33,7 +33,7 @@ int dt = 5;     //time step
 
 int maxNconst = 20;
 double maxYconst = 1800;
-double Vfconst = 50;
+float Vfconst = 50;
 double CellLengthconst = 100;
 
 
