@@ -167,6 +167,54 @@ __global__ void simulationStep(int loop_limit, link *l, node *n,
 	}
 }
 
+
+
+__device__ MLCsim(link* l){
+	double w = 15;  //wave speed
+	
+	double L = l.SectionLength;
+	
+	int NoSection = l.NoSection;
+	int NoLane = l.NoLane;
+	
+	double Lmin = l.Vf/3.6 * dt;
+	
+	
+	for (int section = 0; section < l.NoSection; section++) {
+		for (int lane = 0; lane < l.NoLane; lane++) {
+			l.Y[section][lane] = min( min( Lmin/L[section] * l.N[section][lane], l.maxY[section][lane]), 
+					min( l.maxY[section][lane+1], w * dt / L * (l.maxN[section][lane] - l.N[section][lane] ));
+		// moveforward flag update
+					      
+		}
+	}
+	
+}
+						 
+__device__ OLCsim(link* l){
+	double w = 15;  //wave speed
+	
+	double L = l.SectionLength;
+	
+	int NoSection = l.NoSection;
+	int NoLane = l.NoLane;
+	
+	double Lmin = l.Vf/3.6 * dt;
+	
+	
+	for (int section = 0; section < l.NoSection; section++) {
+		for (int lane = 0; lane < l.NoLane; lane++) {
+			l.Y[section][lane] = min( min( Lmin/L[section] * l.N[section][lane], l.maxY[section][lane]), 
+					min( l.maxY[section][lane+1], w * dt / L * (l.maxN[section][lane] - l.N[section][lane] ));
+		// moveforward flag update
+					      
+		}
+	}
+	
+}
+
+
+
 __device__ CFsim(link* l){
 	double w = 15;  //wave speed
 	
