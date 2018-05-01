@@ -111,25 +111,24 @@ void SimulationStep(link l[], int numberOfLinks, int loop_limit){
     }
 }
 
-void CFsim(link *l) {
+void CFsim(link *l, vehicle *v) {
     double w = 15;  //wave speed
-
-//    double L = l->CellLength;
-    double L = 4;
+    double L = 4;   //Section length
 
     int NoCell = NUM_SECTION;
     int NoLane = NUM_LANE;
 
     double Lmin = l->Vf / 3.6 * dt;
 
-
-    for (int cell = 0; cell < NUM_SECTION; cell++) {
+    for (int section = 0; section < NUM_SECTION; section++) {
         for (int lane = 0; lane < NUM_LANE; lane++) {
-            l->Y[cell][lane] = MIN (MIN(20,30), MIN(20,100));
+            l->Y[cell][lane] = MIN (MIN(Lmin/L * l->N[section][lane], l->MaxY[section][lane]), 
+				    MIN(l->MaxY[section][lane+1], w*dt/L*(l->MaxN[section][lane]-l->N[section][lane])));
 //                    MIN(
 //                    MIN(Lmin / L[cell] * l->N[cell][lane], l->MaxY[cell][lane]),
 //                    MIN(l->MaxY[cell][lane + 1], w * dt / L * (l->MaxN[cell][lane] - l->N[cell][lane])));
 //            // moveforward flag update
+		
 
         }
     }
