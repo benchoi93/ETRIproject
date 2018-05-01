@@ -1,6 +1,11 @@
-#include <stdlib.h>
 #include <stdio.h>
-
+#include <stdlib.h>
+#include <string.h>
+#include <ctype.h>
+#include <sys/time.h>
+#include <math.h>
+#include "TrafficSim.h"
+#include <time.h>
 #test branch
 
 
