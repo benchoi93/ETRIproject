@@ -30,10 +30,10 @@ typedef struct {
 typedef struct {
 	int linkID;
 			  	
-	int maxNumVeh[][];   	// 2D Array [NoCell	,NoLane]
-	double maxNumCF[][];	// 2D Array [NoCell	,NoLane]
+	int maxNumVeh[NUM_SECTION+2][NUM_LANE];   	// 2D Array [NoCell	,NoLane]
+	double maxNumCF[NUM_SECTION+2][NUM_LANE];	// 2D Array [NoCell	,NoLane]
 	double ffSpeed;	// Free flow speed 	
-	double lenSection[];
+	double lenSection[NUM_SECTION+2];
 	
 	int numVeh[NUM_SECTION+2][NUM_LANE];  	  	// 
 	int vehIDArr[NUM_SECTION+2][NUM_LANE][MAX_VEC];	// vehID per each cell (include buffer cell)
