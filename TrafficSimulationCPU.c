@@ -22,18 +22,26 @@ connection_cell *mycon;
 void Setup_Veh(vehicle* v, int numVeh) {
 	/// (1) Add inputs to vArr in order to create new vehicle.
 	for (int i = 0 ; i < 20 ; i++) {
-		srand(time(NULL));
-    	int randLane = rand() % NUM_LANE;
-    	int randSection = rand() % NUM_SECTION;
-
 		v[i].vehType = 0;
 		v[i].vehID = i;
 		v[i].path[0] = 0;
 		v[i].path[0] = 1;
 		v[i].lenPath = 2;
-		v[i].currLane = randLane;
-		v[i].currSection = randSection;
 		v[i].currLink = 0;
+	}
+
+	/// vTL[] = currLane, currSection
+	int vPos[20][2] = {
+	{0, 0}, {0, 1},	{0, 2}, {0, 3},
+	{1, 0},	{1, 1},	{1, 2},	{1, 3},
+	{2, 0},	{2, 1},	{2, 2},	{2, 3},
+	{3, 0},	{3, 1},	{3, 2},	{3, 3},
+	{0, 0},	{0, 1},	{0, 2},	{0, 3}	};
+
+	/// 
+	for (int i = 0 ; i < 20 ; i++) {
+		v[i].currLane = vPos[i][0];
+		v[i].currSection = vPos[i][1];
 	}
 
 	/// vTL[] = minTargetLane[0], maxTargetLane[0], minTargetLane[1], maxTargetLane[1]
@@ -79,6 +87,28 @@ void Setup_Link(link* l, int numLink, vehicle* v, int numVeh) {
 		    }
 		}
 
+		///
+		for (int cell = 0 ; cell < NUM_SECTION+2 ; cell++) {
+			for (int lane = 0 ; lane < NUM_LANE ; lane++) {
+				l[i].numVeh[cell][lane] = 0;
+				l[i].numMLCL[cell][lane] = 0;
+	    		l[i].numMLCR[cell][lane] = 0;
+	    		l[i].numCF[cell][lane] = 0;
+				l[i].speed[cell][lane] = 0;
+
+				for (int j = 0 ; j < numVeh ; j++) {
+			    	l[i].vehIDArr[cell][lane][j] = 0;
+	    			l[i].currLinkOrderArr[cell][lane][j] = 0;
+	    			l[i].minTargetLaneArr[cell][lane][j] = 0;
+	    			l[i].maxTargetLaneArr[cell][lane][j] = 0;
+	    			l[i].vehMLC[cell][lane][j] = 0;
+	    			l[i].vehOLC[cell][lane][j] = 0;
+	    			l[i].vehCF[cell][lane][j] = 0;
+	    		}
+		    }
+		}
+
+		/// 
     	for (int j = 0 ; j < numVeh ; j++) {
     		if (l[i].linkID == v[j].currLink) {
     			int p = v[j].currSection;
@@ -111,6 +141,22 @@ void Setup_ConnectionCell(connection_cell* cc) {
 	cc[1].ccID = 1;
 	cc[1].prevLinkID = 1;
 	cc[1].nextLinkID = 0;
+
+	for (int lane = 0 ; lane < NUM_LANE-1 ; lane++) {
+		cc[0].numVeh[lane] = 0;
+		for (int i = 0 ; i < MAX_VEC-1 ; i++) {
+			cc[0].vehIDArr[lane][i] = 0;
+			cc[0].currLinkOrderArr[lane][i] = 0;
+		}
+	}
+
+	for (int lane = 0 ; lane < NUM_LANE-1 ; lane++) {
+		cc[1].numVeh[lane] = 0;
+		for (int i = 0 ; i < MAX_VEC-1 ; i++) {
+			cc[1].vehIDArr[lane][i] = 0;
+			cc[1].currLinkOrderArr[lane][i] = 0;
+		}
+	}
 }
 
 
@@ -161,8 +207,7 @@ int Evaluate_Prob(double inputProb) {
     int intPart = (int)inputProb;
     double probPart = inputProb - (double)intPart;
 
-    srand(time(NULL));
-    double random = ((rand() % 10)/10);
+    double random = ((rand() % 10)/10.);
 
     return random > probPart ? (intPart+1):intPart;
 }
@@ -180,7 +225,7 @@ void Select_Veh(link* l, int numOLC_L, int numOLC_R, int cell, int lane) {
 
 	/// (1) Exclude vehMLC from candidates that can OLC.
 	for (int i = 0 ; i < numVeh ; i++) {
-		if (l->vehMLC[i] != 0) possOLC[i] = 0;
+		if (l->vehMLC[cell][lane][i] != 0) possOLC[i] = 0;
 	}
 
 	/// (2) Consider when current lane is either maximum or minimum target lane.
@@ -231,8 +276,6 @@ void Select_Veh(link* l, int numOLC_L, int numOLC_R, int cell, int lane) {
 	}
 
 	/// (5) Update values of vehOLC flags.
-	srand(time(NULL));
-
 	if (numOLC_L == 0 && numOLC_R == 0);
 
 	else if (numOLC_L == 0) {
@@ -347,7 +390,7 @@ void Evaluate_OLC(link *l) {
 /// @return  
 /*--------------------------------------------------------------------*/
 void MoveLC(int* fromArr, int fromArrSize, int* toArr, int toArrSize, int index) {
-	int fromArrLoc = fromArrSize / index;
+	double fromArrLoc = ((double)fromArrSize / (index+1));
 	int toArrLoc = Evaluate_Prob(toArrSize / fromArrLoc);
 
 	for (int i = MAX_VEC-1 ; i > toArrLoc ; i--) {
@@ -373,6 +416,18 @@ void LCSim(link* l) {
         	for (int i = 0 ; i < MAX_VEC ; i++) {
 	        	if (l->vehMLC[cell][lane][i] == 1 && l->numVeh[cell][lane] < MAX_VEC) {
 	        		MoveLC(l->vehIDArr[cell][lane], l->numVeh[cell][lane], 
+	        			l->vehIDArr[cell][lane+1], l->numVeh[cell][lane+1], i+1);
+	        		MoveLC(l->currLinkOrderArr[cell][lane], l->numVeh[cell][lane], 
+	        			l->currLinkOrderArr[cell][lane+1], l->numVeh[cell][lane+1], i);
+	        		MoveLC(l->minTargetLaneArr[cell][lane], l->numVeh[cell][lane], 
+	        			l->minTargetLaneArr[cell][lane+1], l->numVeh[cell][lane+1], i);
+	        		MoveLC(l->maxTargetLaneArr[cell][lane], l->numVeh[cell][lane], 
+	        			l->maxTargetLaneArr[cell][lane+1], l->numVeh[cell][lane+1], i);
+	        		l->numVeh[cell][lane+1]++;
+	        		l->numVeh[cell][lane]--;
+	        	}
+	        	else if (l->vehMLC[cell][lane][i] == -1 && l->numVeh[cell][lane] < MAX_VEC) {
+	        		MoveLC(l->vehIDArr[cell][lane], l->numVeh[cell][lane], 
 	        			l->vehIDArr[cell][lane-1], l->numVeh[cell][lane-1], i);
 	        		MoveLC(l->currLinkOrderArr[cell][lane], l->numVeh[cell][lane], 
 	        			l->currLinkOrderArr[cell][lane-1], l->numVeh[cell][lane-1], i);
@@ -381,18 +436,6 @@ void LCSim(link* l) {
 	        		MoveLC(l->maxTargetLaneArr[cell][lane], l->numVeh[cell][lane], 
 	        			l->maxTargetLaneArr[cell][lane-1], l->numVeh[cell][lane-1], i);
 	        		l->numVeh[cell][lane-1]++;
-	        		l->numVeh[cell][lane]--;
-	        	}
-	        	else if (l->vehMLC[cell][lane][i] == -1 && l->numVeh[cell][lane] < MAX_VEC) {
-	        		MoveLC(l->vehIDArr[cell][lane], l->numVeh[cell][lane], 
-	        			l->vehIDArr[cell][lane+1], l->numVeh[cell][lane+1], i);
-	        		MoveLC(l->currLinkOrderArr[cell][lane], l->numVeh[cell][lane], 
-	        			l->currLinkOrderArr[cell][lane+1], l->numVeh[cell][lane+1], i);
-	        		MoveLC(l->minTargetLaneArr[cell][lane], l->numVeh[cell][lane], 
-	        			l->minTargetLaneArr[cell][lane+1], l->numVeh[cell][lane+1], i);
-	        		MoveLC(l->maxTargetLaneArr[cell][lane], l->numVeh[cell][lane], 
-	        			l->maxTargetLaneArr[cell][lane+1], l->numVeh[cell][lane+1], i);
-	        		l->numVeh[cell][lane+1]++;
 	        		l->numVeh[cell][lane]--;
 	        	}
 	        }
@@ -404,18 +447,6 @@ void LCSim(link* l) {
         	for (int i = 0 ; i < MAX_VEC ; i++) {
 	        	if (l->vehOLC[cell][lane][i] == 1 && l->numVeh[cell][lane] < MAX_VEC) {
 	        		MoveLC(l->vehIDArr[cell][lane], l->numVeh[cell][lane], 
-	        			l->vehIDArr[cell][lane-1], l->numVeh[cell][lane-1], i);
-	        		MoveLC(l->currLinkOrderArr[cell][lane], l->numVeh[cell][lane], 
-	        			l->currLinkOrderArr[cell][lane-1], l->numVeh[cell][lane-1], i);
-	        		MoveLC(l->minTargetLaneArr[cell][lane], l->numVeh[cell][lane], 
-	        			l->minTargetLaneArr[cell][lane-1], l->numVeh[cell][lane-1], i);
-	        		MoveLC(l->maxTargetLaneArr[cell][lane], l->numVeh[cell][lane], 
-	        			l->maxTargetLaneArr[cell][lane-1], l->numVeh[cell][lane-1], i);
-	        		l->numVeh[cell][lane-1]++;
-	        		l->numVeh[cell][lane]--;
-	        	}
-	        	else if (l->vehOLC[cell][lane][i] == -1 && l->numVeh[cell][lane] < MAX_VEC) {
-	        		MoveLC(l->vehIDArr[cell][lane], l->numVeh[cell][lane], 
 	        			l->vehIDArr[cell][lane+1], l->numVeh[cell][lane+1], i);
 	        		MoveLC(l->currLinkOrderArr[cell][lane], l->numVeh[cell][lane], 
 	        			l->currLinkOrderArr[cell][lane+1], l->numVeh[cell][lane+1], i);
@@ -424,6 +455,18 @@ void LCSim(link* l) {
 	        		MoveLC(l->maxTargetLaneArr[cell][lane], l->numVeh[cell][lane], 
 	        			l->maxTargetLaneArr[cell][lane+1], l->numVeh[cell][lane+1], i);
 	        		l->numVeh[cell][lane+1]++;
+	        		l->numVeh[cell][lane]--;
+	        	}
+	        	else if (l->vehOLC[cell][lane][i] == -1 && l->numVeh[cell][lane] < MAX_VEC) {
+	        		MoveLC(l->vehIDArr[cell][lane], l->numVeh[cell][lane], 
+	        			l->vehIDArr[cell][lane-1], l->numVeh[cell][lane-1], i);
+	        		MoveLC(l->currLinkOrderArr[cell][lane], l->numVeh[cell][lane], 
+	        			l->currLinkOrderArr[cell][lane-1], l->numVeh[cell][lane-1], i);
+	        		MoveLC(l->minTargetLaneArr[cell][lane], l->numVeh[cell][lane], 
+	        			l->minTargetLaneArr[cell][lane-1], l->numVeh[cell][lane-1], i);
+	        		MoveLC(l->maxTargetLaneArr[cell][lane], l->numVeh[cell][lane], 
+	        			l->maxTargetLaneArr[cell][lane-1], l->numVeh[cell][lane-1], i);
+	        		l->numVeh[cell][lane-1]++;
 	        		l->numVeh[cell][lane]--;
 	        	}
 	        }
@@ -440,15 +483,18 @@ void LCSim(link* l) {
 /*--------------------------------------------------------------------*/
 void Evaluate_CF(link* l) {
 	double wSpeed = 15;
-	double length = 4;
+	//double length = 4;
   
 	for(int cell = 0 ; cell < NUM_SECTION+1 ; cell++) {
   		for(int lane = 0 ; lane < NUM_LANE ; lane++) {
-      		l->numVehCF[cell][lane]= 
-				MIN(MIN((l->ffSpeed / 3.6 * dt) / l->lenSection[cell] * l->numVeh[cell][lane], l->maxNumCF[cell][lane]), 
-					MIN(l->maxNumCF[cell+1][lane], wSpeed * dt / length * (l->maxNumCF[cell][lane] - l->numVeh[cell][lane])));   
+      		l->numCF[cell][lane]= 
+				//MIN(MIN((l->ffSpeed / 3.6 * dt) / l->lenSection[cell] * l->numVeh[cell][lane], l->maxNumCF[cell][lane]), 
+				//	MIN(l->maxNumCF[cell+1][lane], wSpeed * dt / length * (l->maxNumCF[cell][lane] - l->numVeh[cell][lane])));   
+				MIN(l->numVeh[cell][lane], MIN(l->maxNumCF[cell][lane], wSpeed / l->ffSpeed * (l->maxNumCF[cell+1][lane] - l->numVeh[cell+1][lane])));
 	      	
-	      	for(int i = 0 ; i < l->numVehCF[cell][lane] ; i++) {
+			printf("numCF: %d\n", l->numCF[cell][lane]);
+
+	      	for(int i = 0 ; i < l->numCF[cell][lane] ; i++) {
 				l->vehCF[cell][lane][i] = 1;
       		}
     	}
@@ -478,20 +524,20 @@ void MoveCF(int* fromArr, int fromArrSize, int* toArr, int toArrSize, int index)
 /// @return  
 /*--------------------------------------------------------------------*/
 void CFsim(link *l) {
-	for (int cell = 0 ; cell < NUM_SECTION+2 ; cell++) {
+	for (int cell = NUM_SECTION ; cell >= 0 ; cell--) {
         for (int lane = 0 ; lane < NUM_LANE ; lane++) {
         	for (int i = 0 ; i < MAX_VEC ; i++) {
-	        	if (l->vehCF[NUM_SECTION-cell-2][lane][i] == 1 && l->numVeh[NUM_SECTION-cell-1][lane] < MAX_VEC) {
+	        	if (l->vehCF[cell][lane][i] == 1 && l->numVeh[cell+1][lane] < MAX_VEC) {
 	        		MoveCF(l->vehIDArr[cell][lane], l->numVeh[cell][lane], 
-	        			l->vehIDArr[cell][lane-1], l->numVeh[cell][lane-1], i);
+	        			l->vehIDArr[cell+1][lane], l->numVeh[cell+1][lane], i);
 	        		MoveCF(l->currLinkOrderArr[cell][lane], l->numVeh[cell][lane], 
-	        			l->currLinkOrderArr[cell][lane-1], l->numVeh[cell][lane-1], i);
+	        			l->currLinkOrderArr[cell+1][lane], l->numVeh[cell+1][lane], i);
 	        		MoveCF(l->minTargetLaneArr[cell][lane], l->numVeh[cell][lane], 
-	        			l->minTargetLaneArr[cell][lane-1], l->numVeh[cell][lane-1], i);
+	        			l->minTargetLaneArr[cell+1][lane], l->numVeh[cell+1][lane], i);
 	        		MoveCF(l->maxTargetLaneArr[cell][lane], l->numVeh[cell][lane], 
-	        			l->maxTargetLaneArr[cell][lane-1], l->numVeh[cell][lane-1], i);
-	        		l->numVeh[NUM_SECTION-cell-1][lane-1]++;
-	        		l->numVeh[NUM_SECTION-cell-2][lane]--;
+	        			l->maxTargetLaneArr[cell+1][lane], l->numVeh[cell+1][lane], i);
+	        		l->numVeh[cell+1][lane]++;
+	        		l->numVeh[cell][lane]--;
 	        	}
 	        }
 	    }
@@ -575,7 +621,7 @@ void Reset_Link(link* l) {
 	    		MAX(0, MIN(l->ffSpeed, (-wSpeed + (wSpeed * jamdensity / density))));
 	    	l->numMLCL[cell][lane] = 0;
 			l->numMLCR[cell][lane] = 0;
-			l->numVehCF[cell][lane] = 0;
+			l->numCF[cell][lane] = 0;
 
 	    	l->numVeh[NUM_SECTION+1][lane] = 0;
 
@@ -604,7 +650,7 @@ void SimulationStep(link l[], int numLink, connection_cell cc[], int numCC, vehi
 
             //PrintAll(&l[link],myveh,vehn);
             Evaluate_MLC(&l[link]);
-            Evaluate_OLC(&l[link]);
+            //Evaluate_OLC(&l[link]);
 
             LCSim(&l[link]);
 
@@ -616,6 +662,9 @@ void SimulationStep(link l[], int numLink, connection_cell cc[], int numCC, vehi
         for (int cell = 0 ; cell < numCC ; cell++) {
         	int prev = cc[cell].prevLinkID;
         	int next = cc[cell].nextLinkID;
+
+        	printf("prev: %d", prev);
+        	printf("next: %d", next);
 
         	Update_ConnectionCell(&l[prev], &cc[cell]);
         	Update_Link(&l[next], &cc[cell], v);
@@ -649,6 +698,8 @@ void PrintAll (link l[], int numLink) {
 
 int main(int argc, char *argv[]) {
 
+	srand(time(NULL));
+
 	int numVeh = (int) atoi(argv[1]); // number of links
     int numLink = (int) atoi(argv[2]); // number of vehicle
     int numCC = (int) atoi(argv[3]);
@@ -668,6 +719,7 @@ int main(int argc, char *argv[]) {
 
     Setup_Veh(myveh, numVeh);
     Setup_Link(mylink, numLink, myveh, numVeh);
+    Setup_ConnectionCell(mycon);
 
     start = get_time_ms();
     printf("Simulation Started\n");
@@ -679,7 +731,7 @@ int main(int argc, char *argv[]) {
 
     printf("Elapsed Time: %f\n\n", result);
 
-    //PrintAll(mylink, numLink);
+    PrintAll(mylink, numLink);
 
     return 0;
 }
