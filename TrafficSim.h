@@ -31,6 +31,7 @@ typedef struct {
 			  	
 	int maxNumVeh[NUM_SECTION+2][NUM_LANE];   	// 2D Array [NoCell	,NoLane]
 	double maxNumCF[NUM_SECTION+2][NUM_LANE];	// 2D Array [NoCell	,NoLane]
+	//TODO : Dimension fix to +1
 	double ffSpeed;	// Free flow speed 	
 	double lenSection[NUM_SECTION+2];
 	
@@ -47,7 +48,7 @@ typedef struct {
 
 	int numMLCL[NUM_SECTION+2][NUM_LANE];     	// 2D Array [NoCell	,NoLane]
 	int numMLCR[NUM_SECTION+2][NUM_LANE]; 		// 2D Array [NoCell	,NoLane]
-	int numVehCF[NUM_SECTION+1][NUM_LANE];	
+	int numCF[NUM_SECTION+1][NUM_LANE];	
 
 	double speed[NUM_SECTION+2][NUM_LANE];
 
