@@ -221,11 +221,12 @@ int Evaluate_Prob(double inputProb) {
 /*--------------------------------------------------------------------*/
 void Select_Veh(link* l, int numOLC_L, int numOLC_R, int cell, int lane) {
 	int numVeh = l->numVeh[cell][lane];
-	int possOLC[MAX_VEC] = {2};
+	int possOLC[MAX_VEC] = {0};
 
 	/// (1) Exclude vehMLC from candidates that can OLC.
 	for (int i = 0 ; i < numVeh ; i++) {
 		if (l->vehMLC[cell][lane][i] != 0) possOLC[i] = 0;
+		else possOLC[i] = 2;
 	}
 
 	/// (2) Consider when current lane is either maximum or minimum target lane.
@@ -244,9 +245,11 @@ void Select_Veh(link* l, int numOLC_L, int numOLC_R, int cell, int lane) {
 	}
 
 	/// (3) Calculate number of vehicles that can go left, right, or both.
-	int possBoth, possLeft, possRight;
-	int possLeftArr[numVeh];
-	int possRightArr[numVeh];
+	int possBoth = 0;
+	int possLeft = 0;
+	int possRight = 0;
+	int possLeftArr[MAX_VEC] = {0};
+	int possRightArr[MAX_VEC] = {0};
 	for (int i = 0 ; i < numVeh ; i++) {
 		if (possOLC[i] == 2) {
 			possLeftArr[possLeft] = i;
@@ -276,60 +279,62 @@ void Select_Veh(link* l, int numOLC_L, int numOLC_R, int cell, int lane) {
 	}
 
 	/// (5) Update values of vehOLC flags.
+	int count_R = numOLC_R;
+	int count_L = numOLC_L;
 	if (numOLC_L == 0 && numOLC_R == 0);
 
 	else if (numOLC_L == 0) {
-		while (numOLC_R) {
+		while (count_R) {
 			int randVeh = rand()%numOLC_R;
 			if (l->vehOLC[cell][lane][possRightArr[randVeh]] == 0) {
 				l->vehOLC[cell][lane][possRightArr[randVeh]] = 1;
-				numOLC_R--;
+				count_R--;
 			}
 		}
 	}
 
 	else if (numOLC_R == 0) {
-		while (numOLC_L) {
+		while (count_L) {
 			int randVeh = rand()%numOLC_L;
 			if (l->vehOLC[cell][lane][possLeftArr[randVeh]] == 0) {
-				l->vehOLC[cell][lane][possLeftArr[randVeh]] = 1;
-				numOLC_L--;
+				l->vehOLC[cell][lane][possLeftArr[randVeh]] = -1;
+				count_L--;
 			}
 		}      	
 	}
 
 	else if ((possLeft/numOLC_L) > (possRight/numOLC_R)) {
-		while (numOLC_R) {
+		while (count_R) {
 			int randVeh = rand()%numOLC_R;
 			if (l->vehOLC[cell][lane][possRightArr[randVeh]] == 0) {
 				l->vehOLC[cell][lane][possRightArr[randVeh]] = 1;
-				numOLC_R--;
+				count_R--;
 			}
 		}
 
-		while (numOLC_L) {
+		while (count_L) {
 			int randVeh = rand()%numOLC_L;
 			if (l->vehOLC[cell][lane][possLeftArr[randVeh]] == 0) {
-				l->vehOLC[cell][lane][possLeftArr[randVeh]] = 1;
-				numOLC_L--;
+				l->vehOLC[cell][lane][possLeftArr[randVeh]] = -1;
+				count_L--;
 			}
 		}      	
 	}
 
 	else if ((possLeft/numOLC_L) <= (possRight/numOLC_R)) {
-		while (numOLC_L) {
+		while (count_L) {
 			int randVeh = rand()%numOLC_L;
 			if (l->vehOLC[cell][lane][possLeftArr[randVeh]] == 0) {
-				l->vehOLC[cell][lane][possLeftArr[randVeh]] = 1;
-				numOLC_L--;
+				l->vehOLC[cell][lane][possLeftArr[randVeh]] = -1;
+				count_L--;
 			}
 		}     
 
-		while (numOLC_R) {
+		while (count_R) {
 			int randVeh = rand()%numOLC_R;
 			if (l->vehOLC[cell][lane][possRightArr[randVeh]] == 0) {
 				l->vehOLC[cell][lane][possRightArr[randVeh]] = 1;
-				numOLC_R--;
+				count_R--;
 			}
 		}
 	}
@@ -414,29 +419,34 @@ void LCSim(link* l) {
     for (int cell = 0 ; cell < NUM_SECTION+2 ; cell++) {
         for (int lane = 0 ; lane < NUM_LANE ; lane++) {
         	for (int i = 0 ; i < MAX_VEC ; i++) {
-	        	if (l->vehMLC[cell][lane][i] == 1 && l->numVeh[cell][lane] < MAX_VEC) {
-	        		MoveLC(l->vehIDArr[cell][lane], l->numVeh[cell][lane], 
-	        			l->vehIDArr[cell][lane+1], l->numVeh[cell][lane+1], i+1);
-	        		MoveLC(l->currLinkOrderArr[cell][lane], l->numVeh[cell][lane], 
-	        			l->currLinkOrderArr[cell][lane+1], l->numVeh[cell][lane+1], i);
-	        		MoveLC(l->minTargetLaneArr[cell][lane], l->numVeh[cell][lane], 
-	        			l->minTargetLaneArr[cell][lane+1], l->numVeh[cell][lane+1], i);
-	        		MoveLC(l->maxTargetLaneArr[cell][lane], l->numVeh[cell][lane], 
-	        			l->maxTargetLaneArr[cell][lane+1], l->numVeh[cell][lane+1], i);
-	        		l->numVeh[cell][lane+1]++;
-	        		l->numVeh[cell][lane]--;
-	        	}
-	        	else if (l->vehMLC[cell][lane][i] == -1 && l->numVeh[cell][lane] < MAX_VEC) {
-	        		MoveLC(l->vehIDArr[cell][lane], l->numVeh[cell][lane], 
-	        			l->vehIDArr[cell][lane-1], l->numVeh[cell][lane-1], i);
-	        		MoveLC(l->currLinkOrderArr[cell][lane], l->numVeh[cell][lane], 
-	        			l->currLinkOrderArr[cell][lane-1], l->numVeh[cell][lane-1], i);
-	        		MoveLC(l->minTargetLaneArr[cell][lane], l->numVeh[cell][lane], 
-	        			l->minTargetLaneArr[cell][lane-1], l->numVeh[cell][lane-1], i);
-	        		MoveLC(l->maxTargetLaneArr[cell][lane], l->numVeh[cell][lane], 
-	        			l->maxTargetLaneArr[cell][lane-1], l->numVeh[cell][lane-1], i);
-	        		l->numVeh[cell][lane-1]++;
-	        		l->numVeh[cell][lane]--;
+	        	if (l->vehMLC[cell][lane][i] == 1) {
+	        		if (l->numVeh[cell][lane+1] < MAX_VEC) {
+	        			MoveLC(l->vehIDArr[cell][lane], l->numVeh[cell][lane], 
+	        				l->vehIDArr[cell][lane+1], l->numVeh[cell][lane+1], i+1);
+		        		MoveLC(l->currLinkOrderArr[cell][lane], l->numVeh[cell][lane], 
+		        			l->currLinkOrderArr[cell][lane+1], l->numVeh[cell][lane+1], i);
+		        		MoveLC(l->minTargetLaneArr[cell][lane], l->numVeh[cell][lane], 
+		        			l->minTargetLaneArr[cell][lane+1], l->numVeh[cell][lane+1], i);
+		        		MoveLC(l->maxTargetLaneArr[cell][lane], l->numVeh[cell][lane], 
+		        			l->maxTargetLaneArr[cell][lane+1], l->numVeh[cell][lane+1], i);
+		        		l->numVeh[cell][lane+1]++;
+		        		l->numVeh[cell][lane]--;
+	        		}
+	        	} 
+	        		
+	        	else if (l->vehMLC[cell][lane][i] == -1) {
+	        		if (l->numVeh[cell][lane-1] < MAX_VEC) {
+						MoveLC(l->vehIDArr[cell][lane], l->numVeh[cell][lane], 
+	        				l->vehIDArr[cell][lane-1], l->numVeh[cell][lane-1], i);
+		        		MoveLC(l->currLinkOrderArr[cell][lane], l->numVeh[cell][lane], 
+		        			l->currLinkOrderArr[cell][lane-1], l->numVeh[cell][lane-1], i);
+		        		MoveLC(l->minTargetLaneArr[cell][lane], l->numVeh[cell][lane], 
+		        			l->minTargetLaneArr[cell][lane-1], l->numVeh[cell][lane-1], i);
+		        		MoveLC(l->maxTargetLaneArr[cell][lane], l->numVeh[cell][lane], 
+		        			l->maxTargetLaneArr[cell][lane-1], l->numVeh[cell][lane-1], i);
+		        		l->numVeh[cell][lane-1]++;
+		        		l->numVeh[cell][lane]--;
+	        		}
 	        	}
 	        }
         }
@@ -650,7 +660,7 @@ void SimulationStep(link l[], int numLink, connection_cell cc[], int numCC, vehi
 
             //PrintAll(&l[link],myveh,vehn);
             Evaluate_MLC(&l[link]);
-            //Evaluate_OLC(&l[link]);
+            Evaluate_OLC(&l[link]);
 
             LCSim(&l[link]);
 
