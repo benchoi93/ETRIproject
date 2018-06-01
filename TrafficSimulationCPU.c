@@ -30,7 +30,7 @@ void Setup_Veh(vehicle* v, int numVeh) {
 		v[i].currLink = 0;
 	}
 
-	/// vTL[] = currLane, currSection
+	/// vPos[] = currLane, currSection
 	int vPos[20][2] = {
 	{0, 0}, {0, 1},	{0, 2}, {0, 3},
 	{1, 0},	{1, 1},	{1, 2},	{1, 3},
