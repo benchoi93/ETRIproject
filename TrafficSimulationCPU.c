@@ -25,7 +25,7 @@ void Setup_Veh(vehicle* v, int numVeh) {
 		v[i].vehType = 0;
 		v[i].vehID = i;
 		v[i].path[0] = 0;
-		v[i].path[0] = 1;
+		v[i].path[1] = 1;
 		v[i].lenPath = 2;
 		v[i].currLink = 0;
 	}
