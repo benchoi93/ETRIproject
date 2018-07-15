@@ -4,6 +4,7 @@
 #define NUM_LANE    4
 #define NUM_SECTION 4
 #define MAX_VEC     20
+#define MAX_LOOP    100
 #define dt          5
 
 #define MIN(a,b) (((a)<(b)) ? (a):(b))
@@ -14,7 +15,7 @@ typedef struct {
 	int vehType;       // type of vehicle
 
 	int path[20];      // Array of Link IDs in the order in which vechicle passes
-	int lenPath;       // Length of path, total number of links in path
+	int lenPath;
 
 	int minTargetLane[20]; // Minimum Target Lane
 	int maxTargetLane[20]; // Maximum Target Lane
@@ -37,6 +38,7 @@ typedef struct {
 	int numVehArr[NUM_SECTION+2][NUM_LANE];  	  	// 
 	int vehIDArr[NUM_SECTION+2][NUM_LANE][MAX_VEC];	// vehID per each cell (include buffer cell)
 	int currLinkOrderArr[NUM_SECTION+2][NUM_LANE][MAX_VEC];
+	int nextLinkIDArr[NUM_SECTION+2][NUM_LANE][MAX_VEC];
 	int minTargetLaneArr[NUM_SECTION+2][NUM_LANE][MAX_VEC]; 	// minimum Target Lane  EX) 2  타겟 레인의 하한값 설정
 	int maxTargetLaneArr[NUM_SECTION+2][NUM_LANE][MAX_VEC]; 	// max Target Lane  Ex) 3   타겟 레인 상한 값 설정 	
 
@@ -48,21 +50,26 @@ typedef struct {
 	
 	int vehMLC[NUM_SECTION+2][NUM_LANE][MAX_VEC];    	// 1이면 오른쪽으로차로변경, 0=> not right turn
 	int vehOLC[NUM_SECTION+2][NUM_LANE][MAX_VEC]; 		// if 1, right; if 0, stay(or MLC); if -1, left
-	int vehCF[NUM_SECTION+2][NUM_LANE][MAX_VEC];   //1이면 다음셀로 전진,0이면 현재셀에 머무르기
+	int vehCF[NUM_SECTION+1][NUM_LANE][MAX_VEC];   //1이면 다음셀로 전진,0이면 현재셀에 머무르기
 
+	int tempIDArr[NUM_LANE][3];			//[NoLane][교차로 leg 개수-1 (다음 링크로 가능한 leg 개수)]
+	int tempNumArr[NUM_LANE][3];			//[NoLane][교차로 leg 개수-1 (다음 링크로 가능한 leg 개수)]
 
 } link;
 
 
 typedef struct {
 	int ccID;
-	int prevLinkID;
-	int nextLinkID;
+	int prevLinkID[NUM_LANE];
+	int nextLinkID[NUM_LANE][3];
+	int nextLaneID[NUM_LANE][3];
 
-	int numVehArr[NUM_LANE];
-	int vehIDArr[NUM_LANE][MAX_VEC];
-	int currLinkOrderArr[NUM_LANE][MAX_VEC];
-	int numCF[NUM_LANE];
+	int trafficSignal[NUM_LANE][MAX_LOOP];
+
+	int numVehArr[NUM_LANE][3];
+	int vehIDArr[NUM_LANE][MAX_VEC][3];
+	int currLinkOrderArr[NUM_LANE][MAX_VEC][3];
+	double numCF[NUM_LANE][3];
 
 } connection_cell;
 
@@ -82,6 +89,7 @@ void Evaluate_CF(link*);
 void CFsim(link*);
 	void MoveCF(int*, int, int*, int, int);
 
+void Update_TempArr(link*);
 void Update_ConnectionCell(link*, int, connection_cell*);
 void Update_VirtualCell(link*, connection_cell*);
 void Update_FirstCell(link*, connection_cell*, vehicle*);
@@ -89,7 +97,7 @@ void Update_FirstCell(link*, connection_cell*, vehicle*);
 void Reset_ConnectionCell(connection_cell*);
 void Reset_Link(link*);
 
-void SimulationStep(link l[], int, connection_cell cc[], int, vehicle*, int, int);
+void SimulationStep(vehicle*, int, link l[], int, connection_cell cc[], int, int);
 
 double get_time_ms();
 void PrintAll(link l[], int);
