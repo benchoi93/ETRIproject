@@ -728,82 +728,76 @@ void CFsim(link *l) {
 
 
 /*--------------------------------------------------------------------*/
-/// @fn      void Update_TempArr()
-/// @brief   Function that update variables of connection cell using 
-///          variables of link.
-/// @param   link* l, int sect, connection_cell* cc
+/// @fn      int Find_Index()
+/// @brief   Function that find the index of a value in an array.
+/// @param   int* findArr, int findArrSize, int findValue, 
+/// @return  index if the given value exists in the given array.
+///          -1 if the given value doesn't exist in the givne array.
+/*--------------------------------------------------------------------*/
+void Find_Index(int* findArr, int findArrSize, int findValue) {
+	for (int i = 0 ; i < findArrSize ; i++) {
+		if (findArr[i] == findValue) return i;
+	}
+
+	return -1;
+}
+
+
+/*--------------------------------------------------------------------*/
+/// @fn      void Update_Link_TempArr()
+/// @brief   Function that update tempIDArr and tempNumArr.
+/// @param   link* l
 /// @return  None
 /*--------------------------------------------------------------------*/
-void Update_TempArr(link* l) {
+void Update_tempArr(link* l) {
 	for (int lane = 0 ; lane < NUM_LANE ; lane++) {
+        int tempArrSize = 0;
+
         for (int i = 0 ; i < MAX_VEC ; i++) {
-        	for (int j = 0 ; j < 3 ; j++) {
-        		if (l->nextLinkIDArr[NUM_SECTION][lane][i] == l->tempIDArr[lane][j]) {
-        			l->tempNumArr[lane][j] += 1;
-        			break;
-        		}
+        	int tempArrIndex = Find_Index(l->tempIDArr[lane], 3, l->nextLinkIDArr[NUM_SECTION][lane][i]);
+
+        	if (tempArrIndex == -1) {
+        		l->tempIDArr[lane][tempArrSize] = l->nextLinkIDArr[NUM_SECTION][lane][i];
+        		l->tempNumArr[lane][tempArrSize] += 1;
+        		tempArrSize += 1;
         	}
+
+        	else l->tempNumArr[lane][tempArrIndex] += 1;
         }
 	}
 }
 
 
 /*--------------------------------------------------------------------*/
-/// @fn      void Update_ConnectionCell()
+/// @fn      void Update_CC_numVeh()
 /// @brief   Function that update variables of connection cell using 
 ///          variables of link.
 /// @param   link* l, int sect, connection_cell* cc
 /// @return  None
 /*--------------------------------------------------------------------*/
-void Update_ConnectionCell(link* l, int sect, connection_cell* cc) {
+void Update_numVeh() {
 	for (int lane = 0 ; lane < NUM_LANE ; lane++) {
-		cc->numVehArr[lane] = l->numVehArr[sect][lane];
-		cc->numCF[lane] = l->numCF[sect][lane];
+		for (int i = 0 ; i < 3 ; i++) {
+			int index = Find_Index(l->tempIDArr[lane], 3, cc->nextLinkIDArr[lane][i]);
 
-        for (int i = 0 ; i < MAX_VEC ; i++) {
-        	cc->vehIDArr[lane][i] = l->vehIDArr[sect][lane][i];
-        	cc->currLinkOrderArr[lane][i] = l->currLinkOrderArr[sect][lane][i];
-	    }
+			if (index != -1) cc->numVehArr[lane][i] = l->tempNumArr[lane][index];
+		}
 	}
 }
 
 
 /*--------------------------------------------------------------------*/
-/// @fn      void Update_VirtualCell()
+/// @fn      void Update_Link_VirtualCell()
 /// @brief   Function that update variables of virtual cell of a link
 ///          using variables of connection cell.
 /// @param   link* l, connection_cell* cc
 /// @return  None
 /*--------------------------------------------------------------------*/
-void Update_VirtualCell(link* l, connection_cell* cc) {
+void Relay_numVeh() {
 	for (int lane = 0 ; lane < NUM_LANE ; lane++) {
-        l->numVehArr[0][lane] = cc->numVehArr[lane];
-	}
-}
+		int index = Find_Index(cc->nextLinkID[lane], 3, l->linkID);
 
-
-/*--------------------------------------------------------------------*/
-/// @fn      void Update_FirstCell()
-/// @brief   Function update variables of first cell of a link using
-///          variables of connection cell. 
-/// @param   link* l, connection_cell* cc, vehicle* v
-/// @return  None
-/*--------------------------------------------------------------------*/
-void Update_FirstCell(link* l, connection_cell* cc, vehicle* v) {
-	for (int lane = 0 ; lane < NUM_LANE ; lane++) {
-		int currNumVeh = l->numVehArr[1][lane];
-
-        for (int i = 0 ; i < (MAX_VEC - currNumVeh) ; i++) {
-        	int currOrder = cc->currLinkOrderArr[lane][i];
-        	int currVehID = cc->vehIDArr[lane][i];
-
-        	l->vehIDArr[1][lane][currNumVeh+i] = cc->vehIDArr[lane][i];
-        	l->currLinkOrderArr[1][lane][currNumVeh+i] = cc->currLinkOrderArr[lane][i] + 1;
-        	l->minTargetLaneArr[1][lane][currNumVeh+i] = v[currVehID].minTargetLane[currOrder+1];
-        	l->maxTargetLaneArr[1][lane][currNumVeh+i] = v[currVehID].maxTargetLane[currOrder+1];
-	    }
-	    
-	    l->numVehArr[1][lane] += cc->numVehArr[lane];
+        if (index == -1) l->numVehArr[0][lane] = cc->numVehArr[lane];
 	}
 }
 
@@ -823,6 +817,32 @@ void Update_vehCF(link* l, connection_cell* cc) {
 			l->vehCF[NUM_SECTION][lane][i] = 1;
       	}
     }
+}
+
+
+/*--------------------------------------------------------------------*/
+/// @fn      void Update_FirstCell()
+/// @brief   Function update variables of first cell of a link using
+///          variables of connection cell. 
+/// @param   link* l, connection_cell* cc, vehicle* v
+/// @return  None
+/*--------------------------------------------------------------------*/
+void Update_nextLink() {
+	for (int lane = 0 ; lane < NUM_LANE ; lane++) {
+		int currNumVeh = l->numVehArr[1][lane];
+
+        for (int i = 0 ; i < (MAX_VEC - currNumVeh) ; i++) {
+        	int currOrder = cc->currLinkOrderArr[lane][i];
+        	int currVehID = cc->vehIDArr[lane][i];
+
+        	l->vehIDArr[1][lane][currNumVeh+i] = cc->vehIDArr[lane][i];
+        	l->currLinkOrderArr[1][lane][currNumVeh+i] = cc->currLinkOrderArr[lane][i] + 1;
+        	l->minTargetLaneArr[1][lane][currNumVeh+i] = v[currVehID].minTargetLane[currOrder+1];
+        	l->maxTargetLaneArr[1][lane][currNumVeh+i] = v[currVehID].maxTargetLane[currOrder+1];
+	    }
+	    
+	    l->numVehArr[1][lane] += cc->numVehArr[lane];
+	}
 }
 
 
@@ -901,60 +921,46 @@ void SimulationStep(vehicle* v, int numVeh, link l[], int numLink, connection_ce
 
     for (int count = 0 ; count < numLoop ; count++) {
         for (int link = 0 ; link < numLink ; link++) {
-        	//printf("Evaluate LC  ");
+        	Reset_Link(&l[link]);
             Evaluate_MLC(&l[link]);
             Evaluate_OLC(&l[link]);
-            //printf("LC Sim  ");
             LCSim(&l[link]);
+            Update_tempArr(&l[link]);
         }
 
         for (int i = 0 ; i < numCC ; i++) {
-        	//printf("Update_VirtualCell  ");
-        	int prev = cc[i].prevLinkID;
-        	int next = cc[i].nextLinkID;
-
-        	Update_ConnectionCell(&l[prev], NUM_SECTION, &cc[i]);
-        	Update_VirtualCell(&l[next], &cc[i]);
+        	for (int lane = 0 ; lane < NUM_LANE ; lane++) {
+        		Relay_numVeh(&l[cc[i].prevLinkID[lane]], &l[cc[i].nextLinkID[lane]], 
+        					 cc[i].nextLane[lane], &cc[i]);
+        	}
         	Reset_ConnectionCell(&cc[i]);
         }
 
         for (int link = 0 ; link < numLink ; link++) {
-        	//printf("Evaluate CF  ");
         	Evaluate_CF(&l[link]);
         }
 	
         for (int i = 0 ; i < numCC ; i++) {
-       		int traffic = cc[i].trafficSignal[count];
-
-       		if (traffic == 1) {
-       			//printf("Update vehCF  ");
-		        int prev = cc[i].prevLinkID;
-		        int next = cc[i].nextLinkID;
-
-		        Update_ConnectionCell(&l[next], 0, &cc[i]);
-		        Update_vehCF(&l[prev], &cc[i]);
-		        Reset_ConnectionCell(&cc[i]);
-       		}
+        	for (int lane = 0 ; lane < NUM_LANE ; lane++) {
+        		Update_numCF(&l[cc[i].prevLinkID[lane]], &l[cc[i].nextLinkID[lane]], 
+        					cc[i].nextLane[lane], &cc[i]);
+        	}
+        	Reset_ConnectionCell(&cc[i]);
        	}
 
         for (int link = 0 ; link < numLink ; link++) {
-        	//printf("CFsim  ");
+        	Check_Traffic_Signal(&l[link], &cc[i]);
+        	Evaluate_Eff_numCF(&l[link]);
+        	Update_vehCF(&l[link]);
         	CFsim(&l[link]);
         }
 
         for (int i = 0 ; i < numCC ; i++) {
-        	//printf("Update FirstCell  ");
-        	int prev = cc[i].prevLinkID;
-        	int next = cc[i].nextLinkID;
-
-        	Update_ConnectionCell(&l[prev], NUM_SECTION+1, &cc[i]);
-        	Update_FirstCell(&l[next], &cc[i], v);
+        	for (int lane = 0 ; lane < NUM_LANE ; lane++) {
+        		Update_nextLink(v, &l[cc[i].prevLinkID[lane]], &l[cc[i].nextLinkID[lane]], 
+        					cc[i].nextLane[lane], &cc[i]);
+        	}
         	Reset_ConnectionCell(&cc[i]);
-        }
-
-        for (int link = 0 ; link < numLink ; link++) {
-        	//printf("Reset_Link  ");
-            Reset_Link(&l[link]);
         }
 	}
 }
