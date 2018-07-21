@@ -52,8 +52,8 @@ typedef struct {
 	int vehOLC[NUM_SECTION+2][NUM_LANE][MAX_VEC]; 		// if 1, right; if 0, stay(or MLC); if -1, left
 	int vehCF[NUM_SECTION+1][NUM_LANE][MAX_VEC];   //1이면 다음셀로 전진,0이면 현재셀에 머무르기
 
-	int tempIDArr[NUM_LANE][3];			//[NoLane][교차로 leg 개수-1 (다음 링크로 가능한 leg 개수)]
-	int tempNumArr[NUM_LANE][3];			//[NoLane][교차로 leg 개수-1 (다음 링크로 가능한 leg 개수)]
+	int tempIDArr[NUM_LANE][3];
+	int tempNumArr[NUM_LANE][3];
 
 } link;
 
@@ -62,15 +62,17 @@ typedef struct {
 	int ccID;
 	int prevLinkID[NUM_LANE];
 	int nextLinkID[NUM_LANE][3];
-	int nextLaneID[NUM_LANE][3];
+	int nextLane[NUM_LANE][3];
 
 	int trafficSignal[NUM_LANE][MAX_LOOP];
 
 	int numVehArr[NUM_LANE][3];
-	int vehIDArr[NUM_LANE][MAX_VEC][3];
-	int currLinkOrderArr[NUM_LANE][MAX_VEC][3];
-	double numCF[NUM_LANE][3];
 
+	double numCFArr[NUM_LANE][3];
+
+	int vehIDArr[NUM_LANE][MAX_VEC];
+	int currLinkOrderArr[NUM_LANE][MAX_VEC];
+	
 } connection_cell;
 
 
@@ -89,10 +91,14 @@ void Evaluate_CF(link*);
 void CFsim(link*);
 	void MoveCF(int*, int, int*, int, int);
 
-void Update_TempArr(link*);
-void Update_ConnectionCell(link*, int, connection_cell*);
-void Update_VirtualCell(link*, connection_cell*);
-void Update_FirstCell(link*, connection_cell*, vehicle*);
+void Update_tempArr(link*);
+	void Find_Index(int*, int, int);
+void Check_Traffic_Signal(link*, connection_cell*);
+void Relay_numVeh(link*, link*, int, connection_cell*);
+void Update_numCF(link*, link*, int, connection_cell*);
+void Evaluate_Eff_numCF(link*);
+void Update_vehCF(link*);
+void Update_nextLink(vehicle*, link*, link*, int, connection_cell*);
 
 void Reset_ConnectionCell(connection_cell*);
 void Reset_Link(link*);
