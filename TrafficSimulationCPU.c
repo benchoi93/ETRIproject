@@ -240,95 +240,139 @@ void Setup_ConnectionCell(connection_cell* cc, int numCC) {
 			}
 		}
 	}
-
-	cc[1].nextLinkID[0][0] = 2;
+	cc[0].nextLinkID[0][0] = 1;
+	cc[0].nextLaneID[0][0] = 0;
+	cc[0].nextLinkID[1][0] = 1;
+	cc[0].nextLaneID[1][0] = 1;
+	cc[0].nextLinkID[2][0] = 1;
+	cc[0].nextLaneID[2][0] = 2;
+	cc[0].nextLinkID[3][0] = 1;
+	cc[0].nextLaneID[3][0] = 3;
+	
+	cc[1].nextLinkID[0][0] = 6;
 	cc[1].nextLaneID[0][0] = 0;
-	cc[1].nextLinkID[1][0] = 2;
+	cc[1].nextLinkID[1][0] = 4;
 	cc[1].nextLaneID[1][0] = 1;
-	cc[1].nextLinkID[2][0] = 2;
+	cc[1].nextLinkID[2][0] = 4;
 	cc[1].nextLaneID[2][0] = 2;
-	cc[1].nextLinkID[3][0] = 2;
+	cc[1].nextLinkID[3][0] = 4;
 	cc[1].nextLaneID[3][0] = 3;
-	cc[2].nextLinkID[0][0] = 7;
+	cc[1].nextLinkID[3][1] = 2;
+	cc[1].nextLaneID[3][1] = 3;
+	
+	cc[2].nextLinkID[0][0] = 15;
 	cc[2].nextLaneID[0][0] = 0;
-	cc[2].nextLinkID[1][0] = 5;
+	cc[2].nextLinkID[1][0] = 15;
 	cc[2].nextLaneID[1][0] = 1;
-	cc[2].nextLinkID[2][0] = 5;
+	cc[2].nextLinkID[2][0] = 15;
 	cc[2].nextLaneID[2][0] = 2;
-	cc[2].nextLinkID[3][0] = 5;
+	cc[2].nextLinkID[3][0] = 15;
 	cc[2].nextLaneID[3][0] = 3;
-	cc[2].nextLinkID[3][1] = 3;
-	cc[2].nextLaneID[3][1] = 3;
-	cc[3].nextLinkID[0][0] = 0;
+	
+	cc[3].nextLinkID[0][0] = 8;
 	cc[3].nextLaneID[0][0] = 0;
-	cc[3].nextLinkID[1][0] = 0;
-	cc[3].nextLaneID[1][0] = 0;
-	cc[3].nextLinkID[2][0] = 0;
-	cc[3].nextLaneID[2][0] = 0;
-	cc[3].nextLinkID[3][0] = 0;
-	cc[3].nextLaneID[3][0] = 0;
-	cc[4].nextLinkID[0][0] = 9;
+	cc[3].nextLinkID[1][0] = 6;
+	cc[3].nextLaneID[1][0] = 1;
+	cc[3].nextLinkID[2][0] = 6;
+	cc[3].nextLaneID[2][0] = 2;
+	cc[3].nextLinkID[3][0] = 6;
+	cc[3].nextLaneID[3][0] = 3;
+	cc[3].nextLinkID[3][1] = 4;
+	cc[3].nextLaneID[3][1] = 3;
+	
+	cc[4].nextLinkID[0][0] = 16;
 	cc[4].nextLaneID[0][0] = 0;
-	cc[4].nextLinkID[1][0] = 7;
+	cc[4].nextLinkID[1][0] = 16;
 	cc[4].nextLaneID[1][0] = 1;
-	cc[4].nextLinkID[2][0] = 7;
+	cc[4].nextLinkID[2][0] = 16;
 	cc[4].nextLaneID[2][0] = 2;
-	cc[4].nextLinkID[3][0] = 7;
+	cc[4].nextLinkID[3][0] = 16;
 	cc[4].nextLaneID[3][0] = 3;
-	cc[4].nextLinkID[3][1] = 5;
-	cc[4].nextLaneID[3][1] = 3;
-	cc[5].nextLinkID[0][0] = 0;
+	
+	cc[5].nextLinkID[0][0] = 2;
 	cc[5].nextLaneID[0][0] = 0;
-	cc[5].nextLinkID[1][0] = 0;
-	cc[5].nextLaneID[1][0] = 0;
-	cc[5].nextLinkID[2][0] = 0;
-	cc[5].nextLaneID[2][0] = 0;
-	cc[5].nextLinkID[3][0] = 0;
-	cc[5].nextLaneID[3][0] = 0;
-	cc[6].nextLinkID[0][0] = 3;
+	cc[5].nextLinkID[1][0] = 8;
+	cc[5].nextLaneID[1][0] = 1;
+	cc[5].nextLinkID[2][0] = 8;
+	cc[5].nextLaneID[2][0] = 2;
+	cc[5].nextLinkID[3][0] = 8;
+	cc[5].nextLaneID[3][0] = 3;
+	cc[5].nextLinkID[3][1] = 6;
+	cc[5].nextLaneID[3][1] = 3;
+	
+	cc[6].nextLinkID[0][0] = 17;
 	cc[6].nextLaneID[0][0] = 0;
-	cc[6].nextLinkID[1][0] = 9;
+	cc[6].nextLinkID[1][0] = 17;
 	cc[6].nextLaneID[1][0] = 1;
-	cc[6].nextLinkID[2][0] = 9;
+	cc[6].nextLinkID[2][0] = 17;
 	cc[6].nextLaneID[2][0] = 2;
-	cc[6].nextLinkID[3][0] = 9;
+	cc[6].nextLinkID[3][0] = 17;
 	cc[6].nextLaneID[3][0] = 3;
-	cc[6].nextLinkID[3][1] = 7;
-	cc[6].nextLaneID[3][1] = 3;
-	cc[7].nextLinkID[0][0] = 0;
+	
+	cc[7].nextLinkID[0][0] = 4;
 	cc[7].nextLaneID[0][0] = 0;
-	cc[7].nextLinkID[1][0] = 0;
-	cc[7].nextLaneID[1][0] = 0;
-	cc[7].nextLinkID[2][0] = 0;
-	cc[7].nextLaneID[2][0] = 0;
-	cc[7].nextLinkID[3][0] = 0;
-	cc[7].nextLaneID[3][0] = 0;
-	cc[8].nextLinkID[0][0] = 5;
+	cc[7].nextLinkID[1][0] = 2;
+	cc[7].nextLaneID[1][0] = 1;
+	cc[7].nextLinkID[2][0] = 2;
+	cc[7].nextLaneID[2][0] = 2;
+	cc[7].nextLinkID[3][0] = 2;
+	cc[7].nextLaneID[3][0] = 3;
+	cc[7].nextLinkID[3][1] = 8;
+	cc[7].nextLaneID[3][1] = 3;
+	
+	cc[8].nextLinkID[0][0] = 9;
 	cc[8].nextLaneID[0][0] = 0;
-	cc[8].nextLinkID[1][0] = 3;
+	cc[8].nextLinkID[1][0] = 9;
 	cc[8].nextLaneID[1][0] = 1;
-	cc[8].nextLinkID[2][0] = 3;
+	cc[8].nextLinkID[2][0] = 9;
 	cc[8].nextLaneID[2][0] = 2;
-	cc[8].nextLinkID[3][0] = 3;
+	cc[8].nextLinkID[3][0] = 9;
 	cc[8].nextLaneID[3][0] = 3;
-	cc[8].nextLinkID[3][1] = 9;
-	cc[8].nextLaneID[3][1] = 3;
-	cc[9].nextLinkID[0][0] = 10;
+	
+	cc[9].nextLinkID[0][0] = 14;
 	cc[9].nextLaneID[0][0] = 0;
-	cc[9].nextLinkID[1][0] = 10;
+	cc[9].nextLinkID[1][0] = 14;
 	cc[9].nextLaneID[1][0] = 1;
-	cc[9].nextLinkID[2][0] = 10;
+	cc[9].nextLinkID[2][0] = 14;
 	cc[9].nextLaneID[2][0] = 2;
-	cc[9].nextLinkID[3][0] = 10;
+	cc[9].nextLinkID[3][0] = 14;
 	cc[9].nextLaneID[3][0] = 3;
+	
 	cc[10].nextLinkID[0][0] = 0;
 	cc[10].nextLaneID[0][0] = 0;
 	cc[10].nextLinkID[1][0] = 0;
-	cc[10].nextLaneID[1][0] = 0;
+	cc[10].nextLaneID[1][0] = 1;
 	cc[10].nextLinkID[2][0] = 0;
-	cc[10].nextLaneID[2][0] = 0;
+	cc[10].nextLaneID[2][0] = 2;
 	cc[10].nextLinkID[3][0] = 0;
-	cc[10].nextLaneID[3][0] = 0;
+	cc[10].nextLaneID[3][0] = 3;
+	
+	cc[11].nextLinkID[0][0] = 3;
+	cc[11].nextLaneID[0][0] = 0;
+	cc[11].nextLinkID[1][0] = 3;
+	cc[11].nextLaneID[1][0] = 1;
+	cc[11].nextLinkID[2][0] = 3;
+	cc[11].nextLaneID[2][0] = 2;
+	cc[11].nextLinkID[3][0] = 3;
+	cc[11].nextLaneID[3][0] = 3;
+	
+	cc[12].nextLinkID[0][0] = 5;
+	cc[12].nextLaneID[0][0] = 0;
+	cc[12].nextLinkID[1][0] = 5;
+	cc[12].nextLaneID[1][0] = 1;
+	cc[12].nextLinkID[2][0] = 5;
+	cc[12].nextLaneID[2][0] = 2;
+	cc[12].nextLinkID[3][0] = 5;
+	cc[12].nextLaneID[3][0] = 3;
+	
+	cc[13].nextLinkID[0][0] = 7;
+	cc[13].nextLaneID[0][0] = 0;
+	cc[13].nextLinkID[1][0] = 7;
+	cc[13].nextLaneID[1][0] = 1;
+	cc[13].nextLinkID[2][0] = 7;
+	cc[13].nextLaneID[2][0] = 2;
+	cc[13].nextLinkID[3][0] = 7;
+	cc[13].nextLaneID[3][0] = 3;
 }
 
 
