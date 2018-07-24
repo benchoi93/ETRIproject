@@ -53,8 +53,8 @@ typedef struct {
 	int vehOLC[NUM_SECTION+2][NUM_LANE][MAX_VEC]; 		// if 1, right; if 0, stay(or MLC); if -1, left
 	int vehCF[NUM_SECTION+1][NUM_LANE][MAX_VEC];   //1이면 다음셀로 전진,0이면 현재셀에 머무르기
 
-	int tempIDArr[NUM_LANE][3];
-	int tempNumArr[NUM_LANE][3];
+	int tempIDArr[NUM_LANE][3];		// next link ID of vehicles belonging to the lane
+	int tempNumArr[NUM_LANE][3];		// The number of vehicles that want to go to a specific next link
 
 } link;
 
@@ -65,7 +65,7 @@ typedef struct {
 	int nextLinkID[NUM_LANE][3];
 	int nextLane[NUM_LANE][3];
 
-	int trafficSignal[NUM_LANE][MAX_LOOP];
+	int trafficSignal[NUM_LANE][MAX_LOOP];		// 1: green light, 0: red light
 
 	int numVehArr[NUM_LANE][3];
 
@@ -93,13 +93,14 @@ void Evaluate_CF(link*);
 void CFsim(link*);
 	void MoveCF(int*, int, int*, int, int);
 
-void Update_tempArr(link*);
-	void Find_Index(int*, int, int);
-void Relay_numVeh(link*, link*, int, connection_cell*, int, int);
-void Update_numCF(link*, link*, int, connection_cell*, int, int, int);
-void Evaluate_Eff_numCF(link*);
-void Update_vehCF(link*);
-void Update_nextLink(vehicle*, link*, link*, int, connection_cell*, int, int);
+void Update_tempArr(link*);			// update temp array for Step 1
+	void Find_Index(int*, int, int);	// variable: Array, Array size, Value to find -> output: value index in array (the first one)
+void Relay_numVeh(link*, link*, int, connection_cell*, int, int);	// Step 1. Move vehicle num from tempArr to next link's virtual cell
+void Update_numCF(link*, link*, int, connection_cell*, int, int, int);	// update num CF (CTM)
+void Relay_numCF(link*, link*, int, connection_cell*, int, int, int);	// Step 2. Move num CF from next link to previous link (signal 고려), 아직 코딩중
+void Evaluate_Eff_numCF(link*);			// 실제로 넘어갈 수 있는 차량 수 결정 min(max numCF, total numCF, 앞차때문에 못가는 경우 고려)
+void Update_vehCF(link*);			// update vehicle flag for CF
+void Update_nextLink(vehicle*, link*, link*, int, connection_cell*, int, int);	// Step 3. 현재 memory error가 있어서 수정중 (내용이 간단해 index error로 생각됨)
 
 void Reset_ConnectionCell(connection_cell*);
 void Reset_Link(link*);
