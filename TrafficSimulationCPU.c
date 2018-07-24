@@ -1014,6 +1014,9 @@ void SimulationStep(vehicle* v, int numVeh, link l[], int numLink, connection_ce
 
         		Update_numCF(&l[cc[i].prevLinkID[lane]], &l[cc[i].nextLinkID[lane]], 
         					cc[i].nextLane[lane], &cc[i]);
+			
+			Relay_numCF(prevLink, nextLink, nextLane, &cc[i], count, lane);
+			
         	}
         	Reset_ConnectionCell(&cc[i]);
        	}
