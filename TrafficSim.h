@@ -29,6 +29,7 @@ typedef struct {
 
 typedef struct {
 	int linkID;
+	int linkType;
 
 	double ffSpeed;	// Free flow speed 	
 	double lenSection[NUM_SECTION+2];
@@ -70,8 +71,9 @@ typedef struct {
 
 	double numCFArr[NUM_LANE][3];
 
-	int vehIDArr[NUM_LANE][MAX_VEC];
-	int currLinkOrderArr[NUM_LANE][MAX_VEC];
+	int nextLinkIDArr[NUM_LANE][MAX_VEC][3];
+	int vehIDArr[NUM_LANE][MAX_VEC][3];
+	int currLinkOrderArr[NUM_LANE][MAX_VEC][3];
 	
 } connection_cell;
 
@@ -93,12 +95,11 @@ void CFsim(link*);
 
 void Update_tempArr(link*);
 	void Find_Index(int*, int, int);
-void Check_Traffic_Signal(link*, connection_cell*);
-void Relay_numVeh(link*, link*, int, connection_cell*);
-void Update_numCF(link*, link*, int, connection_cell*);
+void Relay_numVeh(link*, link*, int, connection_cell*, int, int);
+void Update_numCF(link*, link*, int, connection_cell*, int, int, int);
 void Evaluate_Eff_numCF(link*);
 void Update_vehCF(link*);
-void Update_nextLink(vehicle*, link*, link*, int, connection_cell*);
+void Update_nextLink(vehicle*, link*, link*, int, connection_cell*, int, int);
 
 void Reset_ConnectionCell(connection_cell*);
 void Reset_Link(link*);
