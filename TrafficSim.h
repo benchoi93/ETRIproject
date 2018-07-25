@@ -1,85 +1,89 @@
 #ifndef TRAFFICSIM_H_
 #define TRAFFICSIM_H_
 
-#define NUM_LANE    4
-#define NUM_SECTION 4
-#define MAX_VEC     20
-#define MAX_LOOP    100
-#define dt          5
+#define NUM_LANE    4	/// Number of lane is fixed to 4
+#define NUM_SECTION 4	/// Number of section is fixed to 4
+#define MAX_VEC     20	/// Number of vehicle in one cell is limited to 20
+#define MAX_LOOP    100	/// Number of simulation loop is limited to 100
+#define dt          5	/// Time interval of one simulation loop is fixed as 5 seconds
 
 #define MIN(a,b) (((a)<(b)) ? (a):(b))
 #define MAX(a,b) (((a)>(b)) ? (a):(b))
 
 typedef struct {
-	int vehID;         // ID of vehicle
-	int vehType;       // type of vehicle
+	int vehID;		/// ID of vehicle: 1~45
+	int vehType;		/// Type of vehicle
 
-	int path[20];      // Array of Link IDs in the order in which vechicle passes
-	int lenPath;
+	int path[20];	/// Array of Link IDs in the order in which vechicle passes
+	int lenPath;	/// Length of path
 
-	int minTargetLane[20]; // Minimum Target Lane
-	int maxTargetLane[20]; // Maximum Target Lane
+	int minTargetLane[20];	/// Minimum Target Lane
+	int maxTargetLane[20];	/// Maximum Target Lane
 
-	int initLink;      // initial Link ID
-    int initLane;      // initial Lane ID
-	int initSection;   // initial Section ID
+	int initLink;		/// initial Link ID
+        int initLane;   	/// initial Lane ID
+	int initSection;	/// initial Section ID
 	
 } vehicle;
 
 
 typedef struct {
-	int linkID;
-	int linkType;
+	int linkID;		/// ID of link: 1~18
+					/// 11~14: source, 15~18: sink
+	int linkType;	/// Type of link
+					/// 1~10: 0, 11~14: -1 (source), 15~18: 1 (sink)
 
-	double ffSpeed;	// Free flow speed 	
-	double lenSection[NUM_SECTION+2];
-	int maxNumVeh[NUM_SECTION+2][NUM_LANE];   	// 2D Array [NoCell	,NoLane]
-	double maxNumCF[NUM_SECTION+1][NUM_LANE];	// 2D Array [NoCell	,NoLane]
+	double ffSpeed;								/// Free flow speed: 16(m/s)
+	double lenSection[NUM_SECTION+2];			/// Length of section: 100(m)
+	int maxNumVeh[NUM_SECTION+2][NUM_LANE];   	/// Maximum possible number of vehicles in one cell
+	double maxNumCF[NUM_SECTION+2][NUM_LANE];	/// Maximum possible number of CF
 	
-	int numVehArr[NUM_SECTION+2][NUM_LANE];  	  	// 
-	int vehIDArr[NUM_SECTION+2][NUM_LANE][MAX_VEC];	// vehID per each cell (include buffer cell)
-	int currLinkOrderArr[NUM_SECTION+2][NUM_LANE][MAX_VEC];
-	int nextLinkIDArr[NUM_SECTION+2][NUM_LANE][MAX_VEC];
-	int minTargetLaneArr[NUM_SECTION+2][NUM_LANE][MAX_VEC]; 	// minimum Target Lane  EX) 2  타겟 레인의 하한값 설정
-	int maxTargetLaneArr[NUM_SECTION+2][NUM_LANE][MAX_VEC]; 	// max Target Lane  Ex) 3   타겟 레인 상한 값 설정 	
+	int numVehArr[NUM_SECTION+2][NUM_LANE];  	  			/// Number of vehicles
+	int vehIDArr[NUM_SECTION+2][NUM_LANE][MAX_VEC];			/// ID of vehicles
+	int currLinkOrderArr[NUM_SECTION+2][NUM_LANE][MAX_VEC];	/// Current link order in vehicle path
+	int nextLinkIDArr[NUM_SECTION+2][NUM_LANE][MAX_VEC];	/// Next link ID of vehicle
+	int minTargetLaneArr[NUM_SECTION+2][NUM_LANE][MAX_VEC]; /// Minimum target lane in current link
+	int maxTargetLaneArr[NUM_SECTION+2][NUM_LANE][MAX_VEC]; /// Maximum target lane in current link
 
-	int speed[NUM_SECTION+2][NUM_LANE];
+	int speed[NUM_SECTION+2][NUM_LANE];		/// Average speed of vehicles in one cell
 
-	int numMLCL[NUM_SECTION+2][NUM_LANE];     	// 2D Array [NoCell	,NoLane]
-	int numMLCR[NUM_SECTION+2][NUM_LANE]; 		// 2D Array [NoCell	,NoLane]
-	double numCF[NUM_SECTION+1][NUM_LANE];	
+	int numMLCL[NUM_SECTION+2][NUM_LANE];  	/// Number of vehicles that performs MLCL
+	int numMLCR[NUM_SECTION+2][NUM_LANE]; 	/// Number of vehicles that performs MLCR
+	double numCF[NUM_SECTION+2][NUM_LANE];	/// Number of vehicles that performs CF
 	
-	int vehMLC[NUM_SECTION+2][NUM_LANE][MAX_VEC];    	// 1이면 오른쪽으로차로변경, 0=> not right turn
-	int vehOLC[NUM_SECTION+2][NUM_LANE][MAX_VEC]; 		// if 1, right; if 0, stay(or MLC); if -1, left
-	int vehCF[NUM_SECTION+1][NUM_LANE][MAX_VEC];   //1이면 다음셀로 전진,0이면 현재셀에 머무르기
+	int vehMLC[NUM_SECTION+2][NUM_LANE][MAX_VEC];   /// MLC flag of vehicles /// MLCL: -1, MLCR: 1
+	int vehOLC[NUM_SECTION+2][NUM_LANE][MAX_VEC]; 	/// OLC flag of vehicles /// OLCL: -1, OLCR: 1
+	int vehCF[NUM_SECTION+2][NUM_LANE][MAX_VEC];   	/// CF flag of vehicles /// CF: 1, notCF: 0
 
-	int tempIDArr[NUM_LANE][3];		// next link ID of vehicles belonging to the lane
-	int tempNumArr[NUM_LANE][3];		// The number of vehicles that want to go to a specific next link
+	int tempIDArr[NUM_LANE][3]; 	/// 2D array to temporary store ID information to or from the connection cell
+	int tempNumArr[NUM_LANE][3];	/// 2D array to temporary store number information to or from the connection cell
 
 } link;
 
 
 typedef struct {
-	int ccID;
-	int prevLinkID[NUM_LANE];
-	int nextLinkID[NUM_LANE][3];
-	int nextLane[NUM_LANE][3];
+	int ccID;			/// ID of connection cell
 
-	int trafficSignal[NUM_LANE][MAX_LOOP];		// 1: green light, 0: red light
+	int prevLinkID;			 /// ID of previous link, equal to ID of connection cell
+	int nextLinkID[NUM_LANE][3];	/// ID of next link
+	int nextLane[NUM_LANE][3];		/// Next lane of next link
 
-	int numVehArr[NUM_LANE][3];
+	int trafficSignal[NUM_LANE][MAX_LOOP];	/// Traffic signal information
+						/// Red light: 0, Green light: 1
 
-	double numCFArr[NUM_LANE][3];
+	int numVehArr[NUM_LANE][3];		/// 2D array to store number of vehicles
 
-	int nextLinkIDArr[NUM_LANE][MAX_VEC][3];
-	int vehIDArr[NUM_LANE][MAX_VEC][3];
-	int currLinkOrderArr[NUM_LANE][MAX_VEC][3];
+	double numCFArr[NUM_LANE][3];	/// 2D array to store number of CF
+
+	int currLinkOrderArr[NUM_LANE][MAX_VEC]; /// 2D array to store current link order
+	int nextLinkIDArr[NUM_LANE][MAX_VEC];	/// 2D array to store ID of next link of vehicles
+	int vehIDArr[NUM_LANE][MAX_VEC];	/// 2D array to store ID of vehicles
 	
 } connection_cell;
 
 
 void Setup_Veh(vehicle*, int);
-void Setup_Link(link*, int, vehicle*, int);
+void Setup_Link(vehicle*, int, link*, int);
 void Setup_ConnectionCell(connection_cell*, int);
 
 void Evaluate_MLC(link*);
@@ -93,14 +97,13 @@ void Evaluate_CF(link*);
 void CFsim(link*);
 	void MoveCF(int*, int, int*, int, int);
 
-void Update_tempArr(link*);			// update temp array for Step 1
-	void Find_Index(int*, int, int);	// variable: Array, Array size, Value to find -> output: value index in array (the first one)
-void Relay_numVeh(link*, link*, int, connection_cell*, int, int);	// Step 1. Move vehicle num from tempArr to next link's virtual cell
-void Update_numCF(link*, link*, int, connection_cell*, int, int, int);	// update num CF (CTM)
-void Relay_numCF(link*, link*, int, connection_cell*, int, int, int);	// Step 2. Move num CF from next link to previous link (signal 고려), 아직 코딩중
-void Evaluate_Eff_numCF(link*);			// 실제로 넘어갈 수 있는 차량 수 결정 min(max numCF, total numCF, 앞차때문에 못가는 경우 고려)
-void Update_vehCF(link*);			// update vehicle flag for CF
-void Update_nextLink(vehicle*, link*, link*, int, connection_cell*, int, int);	// Step 3. 현재 memory error가 있어서 수정중 (내용이 간단해 index error로 생각됨)
+void Update_tempArr(link*);
+	void Find_Index(int*, int, int);
+void Relay_numVeh(link*, link*, int, connection_cell*, int, int);
+void Update_numCF(link*, link*, int, connection_cell*, int, int, int);
+void Evaluate_Eff_numCF(link*);
+void Update_vehCF(link*);
+void Update_nextLink(vehicle*, link*, link*, int, connection_cell*, int, int);
 
 void Reset_ConnectionCell(connection_cell*);
 void Reset_Link(link*);
