@@ -12,7 +12,7 @@
 
 typedef struct {
 	int vehID;		/// ID of vehicle: 1~45
-	int vehType;		/// Type of vehicle
+	int vehType;	/// Type of vehicle
 
 	int path[20];	/// Array of Link IDs in the order in which vechicle passes
 	int lenPath;	/// Length of path
@@ -21,7 +21,7 @@ typedef struct {
 	int maxTargetLane[20];	/// Maximum Target Lane
 
 	int initLink;		/// initial Link ID
-        int initLane;   	/// initial Lane ID
+    int initLane;   	/// initial Lane ID
 	int initSection;	/// initial Section ID
 	
 } vehicle;
@@ -31,7 +31,7 @@ typedef struct {
 	int linkID;		/// ID of link: 1~18
 					/// 11~14: source, 15~18: sink
 	int linkType;	/// Type of link
-					/// 1~10: 0, 11~14: -1 (source), 15~18: 1 (sink)
+					/// 1~10: 0, 11~14: -1, 15~18: 1
 
 	double ffSpeed;								/// Free flow speed: 16(m/s)
 	double lenSection[NUM_SECTION+2];			/// Length of section: 100(m)
@@ -62,14 +62,14 @@ typedef struct {
 
 
 typedef struct {
-	int ccID;			/// ID of connection cell
+	int ccID;	/// ID of connection cell
 
-	int prevLinkID;			 /// ID of previous link, equal to ID of connection cell
+	int prevLinkID;			 		/// ID of previous link, equal to ID of connection cell
 	int nextLinkID[NUM_LANE][3];	/// ID of next link
 	int nextLane[NUM_LANE][3];		/// Next lane of next link
 
 	int trafficSignal[NUM_LANE][MAX_LOOP];	/// Traffic signal information
-						/// Red light: 0, Green light: 1
+											/// Red light: 0, Green light: 1
 
 	int numVehArr[NUM_LANE][3];		/// 2D array to store number of vehicles
 
@@ -77,7 +77,7 @@ typedef struct {
 
 	int currLinkOrderArr[NUM_LANE][MAX_VEC]; /// 2D array to store current link order
 	int nextLinkIDArr[NUM_LANE][MAX_VEC];	/// 2D array to store ID of next link of vehicles
-	int vehIDArr[NUM_LANE][MAX_VEC];	/// 2D array to store ID of vehicles
+	int vehIDArr[NUM_LANE][MAX_VEC];			/// 2D array to store ID of vehicles
 	
 } connection_cell;
 
@@ -98,12 +98,12 @@ void CFsim(link*);
 	void MoveCF(int*, int, int*, int, int);
 
 void Update_tempArr(link*);
-	void Find_Index(int*, int, int);
+	int Find_Index(int*, int, int);
 void Relay_numVeh(link*, link*, int, connection_cell*, int, int);
 void Update_numCF(link*, link*, int, connection_cell*, int, int, int);
 void Evaluate_Eff_numCF(link*);
 void Update_vehCF(link*);
-void Update_nextLink(vehicle*, link*, link*, int, connection_cell*, int, int);
+void Update_nextLink(vehicle*, link*, link*, int, connection_cell*, int);
 
 void Reset_ConnectionCell(connection_cell*);
 void Reset_Link(link*);
