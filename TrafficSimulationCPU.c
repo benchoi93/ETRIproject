@@ -57,7 +57,7 @@ void Setup_Veh(vehicle* v, int numVeh) {
 		v[i].lenPath = 5;
 
 		for (int j = 0 ; j < 5 ; j++) { 
-			if (v[i].path[j] == 0) {
+			if (v[i].path[j] == -1) {
 				v[i].lenPath = j;
 				break;
 			}
