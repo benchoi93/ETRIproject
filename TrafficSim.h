@@ -10,6 +10,13 @@
 #define MIN(a,b) (((a)<(b)) ? (a):(b))
 #define MAX(a,b) (((a)>(b)) ? (a):(b))
 
+enum linkType{
+	LINK,
+	SOURCE,
+	SINK,
+};
+
+
 typedef struct {
 	int vehID;		/// ID of vehicle: 1~45
 	int vehType;	/// Type of vehicle
@@ -31,7 +38,7 @@ typedef struct {
 	int linkID;		/// ID of link: 1~18
 					/// 11~14: source, 15~18: sink
 	int linkType;	/// Type of link
-					/// 1~10: 0, 11~14: -1, 15~18: 1
+					/// 1~10: 0, 11~14: 1, 15~18: 2
 
 	double ffSpeed;								/// Free flow speed: 16(m/s)
 	double lenSection[NUM_SECTION+2];			/// Length of section: 100(m)
