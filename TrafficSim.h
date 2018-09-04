@@ -6,6 +6,7 @@
 #define MAX_VEC     20	/// Number of vehicle in one cell is limited to 20
 #define MAX_LOOP    100	/// Number of simulation loop is limited to 100
 #define dt          5	/// Time interval of one simulation loop is fixed as 5 seconds
+#define MAX_LEG     3	/// Maximum number of intersection leg is fixed to 3
 
 #define MIN(a,b) (((a)<(b)) ? (a):(b))
 #define MAX(a,b) (((a)>(b)) ? (a):(b))
@@ -62,8 +63,8 @@ typedef struct {
 	int vehOLC[NUM_SECTION+2][NUM_LANE][MAX_VEC]; 	/// OLC flag of vehicles /// OLCL: -1, OLCR: 1
 	int vehCF[NUM_SECTION+2][NUM_LANE][MAX_VEC];   	/// CF flag of vehicles /// CF: 1, notCF: 0
 
-	int tempIDArr[NUM_LANE][3]; 	/// 2D array to temporary store ID information to or from the connection cell
-	int tempNumArr[NUM_LANE][3];	/// 2D array to temporary store number information to or from the connection cell
+	int tempIDArr[NUM_LANE][MAX_LEG]; 	/// 2D array to temporary store ID information to or from the connection cell
+	int tempNumArr[NUM_LANE][MAX_LEG];	/// 2D array to temporary store number information to or from the connection cell
 
 } link;
 
@@ -72,15 +73,15 @@ typedef struct {
 	int ccID;	/// ID of connection cell
 
 	int prevLinkID;			 		/// ID of previous link, equal to ID of connection cell
-	int nextLinkID[NUM_LANE][3];	/// ID of next link
-	int nextLane[NUM_LANE][3];		/// Next lane of next link
+	int nextLinkID[NUM_LANE][MAX_LEG];	/// ID of next link
+	int nextLane[NUM_LANE][MAX_LEG];		/// Next lane of next link
 
 	int trafficSignal[NUM_LANE][MAX_LOOP];	/// Traffic signal information
 											/// Red light: 0, Green light: 1
 
-	int numVehArr[NUM_LANE][3];		/// 2D array to store number of vehicles
+	int numVehArr[NUM_LANE][MAX_LEG];		/// 2D array to store number of vehicles
 
-	double numCFArr[NUM_LANE][3];	/// 2D array to store number of CF
+	double numCFArr[NUM_LANE][MAX_LEG];	/// 2D array to store number of CF
 
 	int currLinkOrderArr[NUM_LANE][MAX_VEC]; /// 2D array to store current link order
 	int nextLinkIDArr[NUM_LANE][MAX_VEC];	/// 2D array to store ID of next link of vehicles
