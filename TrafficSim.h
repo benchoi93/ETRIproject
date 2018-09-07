@@ -1,12 +1,13 @@
 #ifndef TRAFFICSIM_H_
 #define TRAFFICSIM_H_
 
-#define NUM_LANE    4	/// Number of lane is fixed to 4
-#define NUM_SECTION 4	/// Number of section is fixed to 4
-#define MAX_VEC     20	/// Number of vehicle in one cell is limited to 20
-#define MAX_LOOP    100	/// Number of simulation loop is limited to 100
-#define dt          5	/// Time interval of one simulation loop is fixed as 5 seconds
-#define MAX_LEG     3	/// Maximum number of intersection leg is fixed to 3
+#define NUM_LANE    		4	/// Number of lane is fixed to 4
+#define NUM_SECTION 		4	/// Number of section is fixed to 4
+#define MAX_VEC     		20	/// Number of vehicle in one cell is limited to 20
+#define MAX_LOOP    		100	/// Number of simulation loop is limited to 100
+#define MAX_LEG				3	/// Number of intersection leg is limited to 3
+#define SECONDS_PER_STEP   	5	/// Time interval of one simulation loop is fixed as 5 seconds
+#define UPDATE_INTERVAL 	60 /// Time interval between vehicle update is fixed as 300 seconds
 
 #define MIN(a,b) (((a)<(b)) ? (a):(b))
 #define MAX(a,b) (((a)>(b)) ? (a):(b))
@@ -22,11 +23,13 @@ typedef struct {
 	int vehID;		/// ID of vehicle: 1~45
 	int vehType;	/// Type of vehicle
 
-	int path[20];	/// Array of Link IDs in the order in which vechicle passes
+	int path[120];	/// Array of Link IDs in the order in which vechicle passes
 	int lenPath;	/// Length of path
 
-	int minTargetLane[20];	/// Minimum Target Lane
-	int maxTargetLane[20];	/// Maximum Target Lane
+	int minTargetLane[120];	/// Minimum Target Lane
+	int maxTargetLane[120];	/// Maximum Target Lane
+
+	int departTime; 	/// depart time
 
 	int initLink;		/// initial Link ID
     int initLane;   	/// initial Lane ID
