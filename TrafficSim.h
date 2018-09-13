@@ -32,8 +32,7 @@ typedef struct {
 	int departTime; 	/// depart time
 
 	int initLink;		/// initial Link ID
-    int initLane;   	/// initial Lane ID
-	int initSection;	/// initial Section ID
+
 	
 } vehicle;
 
@@ -41,8 +40,6 @@ typedef struct {
 typedef struct {
 	int linkID;		/// ID of link: 1~18
 					/// 11~14: source, 15~18: sink
-	int linkType;	/// Type of link
-					/// 1~10: 0, 11~14: 1, 15~18: 2
 
 	double ffSpeed;								/// Free flow speed: 16(m/s)
 	double lenSection[NUM_SECTION+2];			/// Length of section: 100(m)
