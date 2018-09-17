@@ -13,12 +13,6 @@
 #define MIN(a,b) (((a)<(b)) ? (a):(b))
 #define MAX(a,b) (((a)>(b)) ? (a):(b))
 
-enum linkType{
-	LINK,
-	SOURCE,
-	SINK,
-};
-
 
 typedef struct {
 	int vehID;		/// ID of vehicle: 1~45
