@@ -5,7 +5,7 @@
 #define NUM_SECTION 		4	/// Number of section is fixed to 4
 #define MAX_VEC     		20	/// Number of vehicle in one cell is limited to 20
 #define MAX_LOOP    		100	/// Number of simulation loop is limited to 100
-#define MAX_LEG			3	/// Number of intersection leg is limited to 3
+#define MAX_LEG		3	/// Number of intersection leg is limited to 3
 #define SECONDS_PER_STEP   	5	/// Time interval of one simulation loop is fixed as 5 seconds
 #define UPDATE_INTERVAL 	60 /// Time interval between vehicle update is fixed as 300 seconds
 
