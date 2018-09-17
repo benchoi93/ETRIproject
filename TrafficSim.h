@@ -76,7 +76,9 @@ typedef struct {
 	int prevLinkID;			 		/// ID of previous link, equal to ID of connection cell
 	int nextLinkID[NUM_LANE][MAX_LEG];	/// ID of next link
 	int nextLane[NUM_LANE][MAX_LEG];		/// Next lane of next link
-
+	
+	int cycleDuration;			/// duration of one traffic cycle
+	
 	int trafficSignal[NUM_LANE][MAX_CYCLE_DURATION];	/// Traffic signal information
 						/// Red light: 0, Green light: 1
 
