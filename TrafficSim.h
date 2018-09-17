@@ -77,7 +77,7 @@ typedef struct {
 	int nextLinkID[NUM_LANE][MAX_LEG];	/// ID of next link
 	int nextLane[NUM_LANE][MAX_LEG];		/// Next lane of next link
 
-	int trafficSignal[NUM_LANE][MAX_LOOP];	/// Traffic signal information
+	int trafficSignal[NUM_LANE][MAX_CYCLE_DURATION];	/// Traffic signal information
 						/// Red light: 0, Green light: 1
 
 	int numVehArr[NUM_LANE][MAX_LEG];		/// 2D array to store number of vehicles
