@@ -14,13 +14,19 @@ vehicle *myveh;
 connection_cell *mycon;
 
 
+/*--------------------------------------------------------------------*/
 /// RECENT UPDATES
-/// 1. update header file
-/// 2. update Setup_Connectioncell
-/// 3. add Update_Source, Update_Link
+/// 1. Update header file
+/// 2. Update "Setup_Connectioncell"
+/// 3. Add "Update_Source, Start_Path"
 
 /// TODO 
-/// 4. update Relay_numVeh, Relay_numCF, Update_nextLink
+/// 4. Update "Relay_numVeh", "Relay_numCF", "Update_nextLink"
+/// 5. Add debug functions
+/// 5-1. Compare tempArr with CC
+/// 6. Source overflow detection 
+/*--------------------------------------------------------------------*/
+
 
 /*--------------------------------------------------------------------*/
 /// @fn      void Setup_Veh(vehicle*, int)
@@ -44,7 +50,7 @@ void Setup_Veh(vehicle* v, int numVeh) {
 			v[i].maxTargetLane[j] = -1;
 		}
 		
-		v[i].initLink = 0;
+		v[i].initLink = -1;
 		v[i].departTime = i;
 	}
 
@@ -190,7 +196,7 @@ void Setup_Link(vehicle* v, int numVeh, link* l, source_cell* sc, sink_cell* sk,
 	    			l[i].maxTargetLaneArr[sect][lane][j] = -1;
 				}
 
-				l[i].speed[sect][lane] = 0;
+				l[i].speed[sect][lane] = l[i].ffSpeed;
 
 				l[i].numMLCL[sect][lane] = 0;
 	    		l[i].numMLCR[sect][lane] = 0;
@@ -226,7 +232,7 @@ void Setup_Link(vehicle* v, int numVeh, link* l, source_cell* sc, sink_cell* sk,
 		sk[i].numVeh = 0;
 		for (int j = 0 ; j < MAX_SINK_VEC ; j++) {
 			sk[i].vehIDArr[j] = -1;
-			sk[i].arrivalTime[j] = 0;
+			sk[i].arrivalTime[j] = -1;
 		}
 	}
 }
@@ -281,10 +287,10 @@ void Setup_ConnectionCell(connection_cell* cc, int numCC) {
     cc[1].nextLinkID[3][1] = 2;
     cc[1].nextLane[3][1] = 3;
     
-    cc[2].nextLinkID[0][0] = -2;
-    cc[2].nextLinkID[1][0] = -2;
-    cc[2].nextLinkID[2][0] = -2;
-    cc[2].nextLinkID[3][0] = -2;
+    cc[2].nextLinkID[0][0] = -1;
+    cc[2].nextLinkID[1][0] = -1;
+    cc[2].nextLinkID[2][0] = -1;
+    cc[2].nextLinkID[3][0] = -1;
     
     cc[3].nextLinkID[0][0] = 8;
     cc[3].nextLane[0][0] = 0;
@@ -297,10 +303,10 @@ void Setup_ConnectionCell(connection_cell* cc, int numCC) {
     cc[3].nextLinkID[3][1] = 4;
     cc[3].nextLane[3][1] = 3;
     
-    cc[4].nextLinkID[0][0] = -2;
-    cc[4].nextLinkID[1][0] = -2;
-    cc[4].nextLinkID[2][0] = -2;
-    cc[4].nextLinkID[3][0] = -2;
+    cc[4].nextLinkID[0][0] = -1;
+    cc[4].nextLinkID[1][0] = -1;
+    cc[4].nextLinkID[2][0] = -1;
+    cc[4].nextLinkID[3][0] = -1;
     
     cc[5].nextLinkID[0][0] = 2;
     cc[5].nextLane[0][0] = 0;
@@ -313,10 +319,10 @@ void Setup_ConnectionCell(connection_cell* cc, int numCC) {
     cc[5].nextLinkID[3][1] = 6;
     cc[5].nextLane[3][1] = 3;
     
-    cc[6].nextLinkID[0][0] = -2;
-    cc[6].nextLinkID[1][0] = -2;
-    cc[6].nextLinkID[2][0] = -2;
-    cc[6].nextLinkID[3][0] = -2;
+    cc[6].nextLinkID[0][0] = -1;
+    cc[6].nextLinkID[1][0] = -1;
+    cc[6].nextLinkID[2][0] = -1;
+    cc[6].nextLinkID[3][0] = -1;
     
     cc[7].nextLinkID[0][0] = 4;
     cc[7].nextLane[0][0] = 0;
@@ -338,10 +344,10 @@ void Setup_ConnectionCell(connection_cell* cc, int numCC) {
     cc[8].nextLinkID[3][0] = 9;
     cc[8].nextLane[3][0] = 3;
     
-    cc[9].nextLinkID[0][0] = -2;
-    cc[9].nextLinkID[1][0] = -2;
-    cc[9].nextLinkID[2][0] = -2;
-    cc[9].nextLinkID[3][0] = -2;
+    cc[9].nextLinkID[0][0] = -1;
+    cc[9].nextLinkID[1][0] = -1;
+    cc[9].nextLinkID[2][0] = -1;
+    cc[9].nextLinkID[3][0] = -1;
     
 	/// (2) Set traffic signals.
 	for (int i = 0 ; i < numCC ; i++) {
@@ -354,7 +360,7 @@ void Setup_ConnectionCell(connection_cell* cc, int numCC) {
 	}
 
 	for (int count = 0 ; count < MAX_LOOP ; count++) {
-		int trafficCycle = 16;
+		int trafficCycle = cc[i].cycleDuration;
 		int trafficStep = count % trafficCycle;
 
 		if (trafficStep < 5) {
@@ -769,8 +775,8 @@ void Evaluate_CF(link* l) {
 void MoveCF(int* fromArr, int fromArrSize, int* toArr, int toArrSize, int index) {
 	toArr[toArrSize] = fromArr[index];
 
-	for (int i = MAX_VEC-1 ; i >= 0 ; i--) {
-		fromArr[i] = fromArr[i-1];
+	for (int i = index ; i < MAX_VEC ; i++) {
+		fromArr[i] = fromArr[i+1];
 	}
 }
 
@@ -830,7 +836,7 @@ void Update_tempArr(link* l) {
         int tempArrSize = 0;
 
         for (int i = 0 ; i < l->numVehArr[NUM_SECTION][lane] ; i++) {
-        	int tempArrIndex = Find_Index(l->tempIDArr[lane], 3, l->nextLinkIDArr[NUM_SECTION][lane][i]);
+        	int tempArrIndex = Find_Index(l->tempIDArr[lane], MAX_LEG, l->nextLinkIDArr[NUM_SECTION][lane][i]);
 
         	if (tempArrIndex == -1) {
         		l->tempIDArr[lane][tempArrSize] = l->nextLinkIDArr[NUM_SECTION][lane][i];
@@ -853,14 +859,17 @@ void Update_tempArr(link* l) {
 /// @return  None
 /*--------------------------------------------------------------------*/
 void Relay_numVeh(link* prevl, link* nextl, int nextLane, connection_cell* cc, int currLane, int i) {
+	/// (1) Relay numVeh from tempArr of previous link to next link
+	int index = 0;
+
 	if (cc->nextLinkID[currLane][i] != -1) {
-		int index = Find_Index(prevl->tempIDArr[currLane], 3, cc->nextLinkID[currLane][i]);
+		index = Find_Index(prevl->tempIDArr[currLane], MAX_LEG, cc->nextLinkID[currLane][i]);
 
 		if (index != -1) {
-			/// (1) tempArr of previous link -> connection cell
+			/// (1-1) tempArr of previous link -> connection cell
 			cc->numVehArr[currLane][i] = prevl->tempNumArr[currLane][index];
 
-			/// (2) connection cell -> virtual cell of next link
+			/// (1-2) connection cell -> virtual cell of next link
 			nextl->numVehArr[0][nextLane] = cc->numVehArr[currLane][i];
 		}
 	}	
@@ -883,7 +892,7 @@ void Relay_numCF(link* prevl, link* nextl, int nextLane, connection_cell* cc, in
 		else cc->numCFArr[currLane][i] = nextl->numCF[0][nextLane];
 
 		/// (2) connection cell -> previous link
-		int index = Find_Index(prevl->tempIDArr[currLane], 3, cc->nextLinkID[currLane][i]);
+		int index = Find_Index(prevl->tempIDArr[currLane], MAX_LEG, cc->nextLinkID[currLane][i]);
 
 		prevl->tempNumArr[currLane][index] = cc->numVehArr[currLane][i];
 	}
@@ -1056,7 +1065,7 @@ void Reset_sink(sink_cell* sk) {
 /*--------------------------------------------------------------------*/
 /// @fn      void Update_Source()
 /// @brief   Function that update source in every UPDATE_INTERVAL.
-/// @param   vehicle* v, source_cell* sc
+/// @param   vehicle* v, int numVeh, source_cell* sc, int currLoop
 /// @return  None
 /*--------------------------------------------------------------------*/
 void Update_Source(vehicle* v, int numVeh, source_cell* sc, int currLoop) {
@@ -1074,12 +1083,13 @@ void Update_Source(vehicle* v, int numVeh, source_cell* sc, int currLoop) {
 
 
 /*--------------------------------------------------------------------*/
-/// @fn      void Update_Link()
-/// @brief   Function that update source every step.
-/// @param   link*, source_cell*
+/// @fn      void Start_Path()
+/// @brief   Function that moves vehicles from source cell to initial
+///          link.
+/// @param   link* l, source_cell* sc, int numLink
 /// @return  None
 /*--------------------------------------------------------------------*/
-void Enter_Link(link* l, source_cell* sc, int numLink) {
+void Start_Path(link* l, source_cell* sc, int numLink) {
 	if (l->numVehArr[3][3] < MAX_VEC) {
 		int numEnter = MIN(l[i].maxNumCF[2][3], (MAX_VEC - l[i].numVehArr[3][3]));
 
@@ -1090,6 +1100,44 @@ void Enter_Link(link* l, source_cell* sc, int numLink) {
 			l->numVeh[3][3]++;
 		}
 	}
+}
+
+
+/*--------------------------------------------------------------------*/
+/// @fn      void Remove_Value()
+/// @brief   Function that removes elements of an array.
+/// @param   int* fromArr, int fromArrSize, int index
+/// @return  None
+/*--------------------------------------------------------------------*/
+void Remove_Value(int* fromArr, int fromArrSize, int index) {
+	for (int i = MAX_VEC-1 ; i >= 0 ; i--) {
+		fromArr[i] = fromArr[i-1];
+	}
+}
+
+
+/*--------------------------------------------------------------------*/
+/// @fn      void End_Path()
+/// @brief   Function that moves vehicles from the last link of their 
+///          path to sink cell.
+/// @param   link* l, sink_cell* sk, int numLink
+/// @return  None
+/*--------------------------------------------------------------------*/
+void End_Path(link* l, sink_cell* sk, int numLink) {
+	for (int lane = 0 ; lane < NUM_LANE ; lane++) {
+    	for (int i = 0 ; i < MAX_VEC ; i++) {
+    		if (l->nextLinkIDArr[1][lane][i] == -2) {
+    			MoveCF(l->vehIDArr[sect][lane], l->numVehArr[sect][lane], sk->vehIDArr, sk->numVehArr, i);
+	        	Remove_Value(l->currLinkOrderArr[sect][lane], l->numVehArr[sect][lane], i);
+	        	Remove_Value(l->nextLinkIDArr[sect][lane], l->numVehArr[sect][lane], i);
+	        	Remove_Value(l->minTargetLaneArr[sect][lane], l->numVehArr[sect][lane], i);
+	        	Remove_Value(l->maxTargetLaneArr[sect][lane], l->numVehArr[sect][lane], i);
+	        	
+	        	sk->numVehArr++;
+	        	l->numVehArr[sect][lane]--;
+    		}
+    	}
+    }
 }
 
 
@@ -1116,7 +1164,8 @@ void SimulationStep(vehicle* v, int numVeh, link l[], int numLink, source_cell s
         for (int link = 0 ; link < numLink ; link++) {
         	Reset_Link(&l[link]);
 
-        	Enter_Link(&l[link], &sc[link], numLink);
+        	End_Path(&l[link], &sk[link], numLink)
+        	Start_Path(&l[link], &sc[link], numLink);
 
             Evaluate_MLC(&l[link]);
             Evaluate_OLC(&l[link]);
