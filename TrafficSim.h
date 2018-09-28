@@ -141,7 +141,9 @@ void Reset_Sink(sink_cell*);
 
 /// Source functions
 void Update_Source(vehicle*, int, source_cell* sc, int);
-void Enter_Link(link* l, source_cell* sc, int);
+void Start_Path(link* l, source_cell* sc, int);
+
+void End_Path(link* l, sink_cell* sk, int)
 
 void SimulationStep(vehicle*, int, link l[], int, source_cell sc[], sink_cell sk[], connection_cell cc[], int, int);
 
