@@ -129,7 +129,7 @@ void CFsim(link*);
 /// CC functions
 void Update_tempArr(link*);
 	int Find_Index(int*, int, int);
-void Relay_numVeh(link*, link*, int, connection_cell*, int, int);
+void Relay_numVeh(link*, link*, int, connection_cell*, int, int, int);
 void Relay_numCF(link*, link*, int, connection_cell*, int, int, int);
 void Evaluate_Eff_numCF(link*);
 void Update_nextLink(vehicle*, link*, link*, int, connection_cell*, int);
@@ -140,12 +140,12 @@ void Reset_Link(link*);
 void Reset_Sink(sink_cell*);
 
 /// Source functions
-void Update_Source(vehicle*, int, source_cell* sc, int);
-void Start_Path(link* l, source_cell* sc, int);
+void Update_Source(vehicle*, int, source_cell*, int);
+void Start_Path(link*, source_cell*, int);
+void End_Path(link* l, sink_cell*, int);
+	void Remove_Value(int*, int, int);
 
-void End_Path(link* l, sink_cell* sk, int)
-
-void SimulationStep(vehicle*, int, link l[], int, source_cell sc[], sink_cell sk[], connection_cell cc[], int, int);
+void SimulationStep(vehicle*, int, link l[], source_cell sc[], sink_cell sk[], connection_cell cc[], int, int);
 
 double get_time_ms();
 void PrintOutput(link l[], int);
