@@ -11,6 +11,8 @@
 
 link *mylink;
 vehicle *myveh;
+source_cell *mysource;
+sink_cell *mysink;
 connection_cell *mycon;
 
 
@@ -261,7 +263,7 @@ void Setup_ConnectionCell(connection_cell* cc, int numCC) {
 
 			for (int j = 0 ; j < MAX_VEC ; j++) {
 				cc[i].currLinkOrderArr[lane][j] = 0;
-				cc[i].nextLinkIDArr[lane][j] = 0;
+				cc[i].nextLinkIDArr[lane][j] = -1;
 				cc[i].vehIDArr[lane][j] = 0;
 			}
 		}
@@ -287,10 +289,10 @@ void Setup_ConnectionCell(connection_cell* cc, int numCC) {
     cc[1].nextLinkID[3][1] = 2;
     cc[1].nextLane[3][1] = 3;
     
-    cc[2].nextLinkID[0][0] = -1;
-    cc[2].nextLinkID[1][0] = -1;
-    cc[2].nextLinkID[2][0] = -1;
-    cc[2].nextLinkID[3][0] = -1;
+    cc[2].nextLinkID[0][0] = -2;
+    cc[2].nextLinkID[1][0] = -2;
+    cc[2].nextLinkID[2][0] = -2;
+    cc[2].nextLinkID[3][0] = -2;
     
     cc[3].nextLinkID[0][0] = 8;
     cc[3].nextLane[0][0] = 0;
@@ -303,10 +305,10 @@ void Setup_ConnectionCell(connection_cell* cc, int numCC) {
     cc[3].nextLinkID[3][1] = 4;
     cc[3].nextLane[3][1] = 3;
     
-    cc[4].nextLinkID[0][0] = -1;
-    cc[4].nextLinkID[1][0] = -1;
-    cc[4].nextLinkID[2][0] = -1;
-    cc[4].nextLinkID[3][0] = -1;
+    cc[4].nextLinkID[0][0] = -2;
+    cc[4].nextLinkID[1][0] = -2;
+    cc[4].nextLinkID[2][0] = -2;
+    cc[4].nextLinkID[3][0] = -2;
     
     cc[5].nextLinkID[0][0] = 2;
     cc[5].nextLane[0][0] = 0;
@@ -319,10 +321,10 @@ void Setup_ConnectionCell(connection_cell* cc, int numCC) {
     cc[5].nextLinkID[3][1] = 6;
     cc[5].nextLane[3][1] = 3;
     
-    cc[6].nextLinkID[0][0] = -1;
-    cc[6].nextLinkID[1][0] = -1;
-    cc[6].nextLinkID[2][0] = -1;
-    cc[6].nextLinkID[3][0] = -1;
+    cc[6].nextLinkID[0][0] = -2;
+    cc[6].nextLinkID[1][0] = -2;
+    cc[6].nextLinkID[2][0] = -2;
+    cc[6].nextLinkID[3][0] = -2;
     
     cc[7].nextLinkID[0][0] = 4;
     cc[7].nextLane[0][0] = 0;
@@ -344,10 +346,10 @@ void Setup_ConnectionCell(connection_cell* cc, int numCC) {
     cc[8].nextLinkID[3][0] = 9;
     cc[8].nextLane[3][0] = 3;
     
-    cc[9].nextLinkID[0][0] = -1;
-    cc[9].nextLinkID[1][0] = -1;
-    cc[9].nextLinkID[2][0] = -1;
-    cc[9].nextLinkID[3][0] = -1;
+    cc[9].nextLinkID[0][0] = -2;
+    cc[9].nextLinkID[1][0] = -2;
+    cc[9].nextLinkID[2][0] = -2;
+    cc[9].nextLinkID[3][0] = -2;
     
 	/// (2) Set traffic signals.
 	for (int i = 0 ; i < numCC ; i++) {
@@ -359,60 +361,62 @@ void Setup_ConnectionCell(connection_cell* cc, int numCC) {
 		cc[i].cycleDuration = 16;
 	}
 
-	for (int count = 0 ; count < MAX_LOOP ; count++) {
-		int trafficCycle = cc[i].cycleDuration;
-		int trafficStep = count % trafficCycle;
+	for (int i = 0 ; i < numCC ; i++) {
+		for (int count = 0 ; count < MAX_LOOP ; count++) {
+			int trafficCycle = cc[i].cycleDuration;
+			int trafficStep = count % trafficCycle;
 
-		if (trafficStep < 5) {
-			cc[1].trafficSignal[1][count] = 1;
-			cc[1].trafficSignal[2][count] = 1;
-			cc[1].trafficSignal[3][count] = 1;
-			cc[5].trafficSignal[1][count] = 1;
-			cc[5].trafficSignal[2][count] = 1;
-			cc[5].trafficSignal[3][count] = 1;
-		}
-		else if (trafficStep < 8) {
-			cc[1].trafficSignal[0][count] = 1;
-			cc[5].trafficSignal[0][count] = 1;
-		}
-		else if (trafficStep < 13) {
-			cc[3].trafficSignal[1][count] = 1;
-			cc[3].trafficSignal[2][count] = 1;
-			cc[3].trafficSignal[3][count] = 1;
-			cc[7].trafficSignal[1][count] = 1;
-			cc[7].trafficSignal[2][count] = 1;
-			cc[7].trafficSignal[3][count] = 1;
-		}
-		else if (trafficStep < 16) {
-			cc[3].trafficSignal[0][count] = 1;
-			cc[7].trafficSignal[0][count] = 1;
-		}
+			if (trafficStep < 5) {
+				cc[1].trafficSignal[1][count] = 1;
+				cc[1].trafficSignal[2][count] = 1;
+				cc[1].trafficSignal[3][count] = 1;
+				cc[5].trafficSignal[1][count] = 1;
+				cc[5].trafficSignal[2][count] = 1;
+				cc[5].trafficSignal[3][count] = 1;
+			}
+			else if (trafficStep < 8) {
+				cc[1].trafficSignal[0][count] = 1;
+				cc[5].trafficSignal[0][count] = 1;
+			}
+			else if (trafficStep < 13) {
+				cc[3].trafficSignal[1][count] = 1;
+				cc[3].trafficSignal[2][count] = 1;
+				cc[3].trafficSignal[3][count] = 1;
+				cc[7].trafficSignal[1][count] = 1;
+				cc[7].trafficSignal[2][count] = 1;
+				cc[7].trafficSignal[3][count] = 1;
+			}
+			else if (trafficStep < 16) {
+				cc[3].trafficSignal[0][count] = 1;
+				cc[7].trafficSignal[0][count] = 1;
+			}
 
-		cc[0].trafficSignal[0][count] = 1;
-		cc[0].trafficSignal[1][count] = 1;
-		cc[0].trafficSignal[2][count] = 1;
-		cc[0].trafficSignal[3][count] = 1;
-		cc[2].trafficSignal[0][count] = 1;
-		cc[2].trafficSignal[1][count] = 1;
-		cc[2].trafficSignal[2][count] = 1;
-		cc[2].trafficSignal[3][count] = 1;
-		cc[4].trafficSignal[0][count] = 1;
-		cc[4].trafficSignal[1][count] = 1;
-		cc[4].trafficSignal[2][count] = 1;
-		cc[4].trafficSignal[3][count] = 1;
-		cc[6].trafficSignal[0][count] = 1;
-		cc[6].trafficSignal[1][count] = 1;
-		cc[6].trafficSignal[2][count] = 1;
-		cc[6].trafficSignal[3][count] = 1;
-		cc[8].trafficSignal[0][count] = 1;
-		cc[8].trafficSignal[1][count] = 1;
-		cc[8].trafficSignal[2][count] = 1;
-		cc[8].trafficSignal[3][count] = 1;
-		cc[9].trafficSignal[0][count] = 1;
-		cc[9].trafficSignal[1][count] = 1;
-		cc[9].trafficSignal[2][count] = 1;
-		cc[9].trafficSignal[3][count] = 1;
-	}
+			cc[0].trafficSignal[0][count] = 1;
+			cc[0].trafficSignal[1][count] = 1;
+			cc[0].trafficSignal[2][count] = 1;
+			cc[0].trafficSignal[3][count] = 1;
+			cc[2].trafficSignal[0][count] = 1;
+			cc[2].trafficSignal[1][count] = 1;
+			cc[2].trafficSignal[2][count] = 1;
+			cc[2].trafficSignal[3][count] = 1;
+			cc[4].trafficSignal[0][count] = 1;
+			cc[4].trafficSignal[1][count] = 1;
+			cc[4].trafficSignal[2][count] = 1;
+			cc[4].trafficSignal[3][count] = 1;
+			cc[6].trafficSignal[0][count] = 1;
+			cc[6].trafficSignal[1][count] = 1;
+			cc[6].trafficSignal[2][count] = 1;
+			cc[6].trafficSignal[3][count] = 1;
+			cc[8].trafficSignal[0][count] = 1;
+			cc[8].trafficSignal[1][count] = 1;
+			cc[8].trafficSignal[2][count] = 1;
+			cc[8].trafficSignal[3][count] = 1;
+			cc[9].trafficSignal[0][count] = 1;
+			cc[9].trafficSignal[1][count] = 1;
+			cc[9].trafficSignal[2][count] = 1;
+			cc[9].trafficSignal[3][count] = 1;
+		}
+	}	
 }
 
 
@@ -655,12 +659,12 @@ void MoveLC(int* fromArr, int fromArrSize, int* toArr, int toArrSize, int index)
 	double fromArrLoc = ((double)fromArrSize / (index+1));
 	int toArrLoc = Evaluate_Prob(toArrSize / fromArrLoc);
 
-	for (int i = MAX_VEC-1 ; i > toArrLoc ; i--) {
+	for (int i = fromArrSize-1 ; i > toArrLoc ; i--) {
 		toArr[i] = toArr[i-1];
 	}
 	toArr[toArrLoc] = fromArr[index];
 
-	for (int i = index ; i < MAX_VEC ; i++) {
+	for (int i = index ; i < fromArrSize ; i++) {
 		fromArr[i] = fromArr[i+1];
 	}
 }
@@ -775,7 +779,7 @@ void Evaluate_CF(link* l) {
 void MoveCF(int* fromArr, int fromArrSize, int* toArr, int toArrSize, int index) {
 	toArr[toArrSize] = fromArr[index];
 
-	for (int i = index ; i < MAX_VEC ; i++) {
+	for (int i = index ; i < fromArrSize ; i++) {
 		fromArr[i] = fromArr[i+1];
 	}
 }
@@ -858,21 +862,17 @@ void Update_tempArr(link* l) {
 ///          int currLane, int i
 /// @return  None
 /*--------------------------------------------------------------------*/
-void Relay_numVeh(link* prevl, link* nextl, int nextLane, connection_cell* cc, int currLane, int i) {
+void Relay_numVeh(link* prevl, link* nextl, int nextLane, connection_cell* cc, int currLane, int leg, int currLink) {
 	/// (1) Relay numVeh from tempArr of previous link to next link
-	int index = 0;
+	int index = Find_Index(prevl->tempIDArr[currLane], MAX_LEG, cc->nextLinkID[currLane][leg]);
 
-	if (cc->nextLinkID[currLane][i] != -1) {
-		index = Find_Index(prevl->tempIDArr[currLane], MAX_LEG, cc->nextLinkID[currLane][i]);
+	if (index != -1) {
+		/// (1-1) tempArr of previous link -> connection cell
+		cc->numVehArr[currLane][leg] = prevl->tempNumArr[currLane][index];
 
-		if (index != -1) {
-			/// (1-1) tempArr of previous link -> connection cell
-			cc->numVehArr[currLane][i] = prevl->tempNumArr[currLane][index];
-
-			/// (1-2) connection cell -> virtual cell of next link
-			nextl->numVehArr[0][nextLane] = cc->numVehArr[currLane][i];
-		}
-	}	
+		/// (1-2) connection cell -> virtual cell of next link
+		nextl->numVehArr[0][nextLane] = cc->numVehArr[currLane][leg];
+	}
 }
 
 
@@ -883,19 +883,17 @@ void Relay_numVeh(link* prevl, link* nextl, int nextLane, connection_cell* cc, i
 /// @param   link* prevl, link* nextl, int nextLane, connection_cell* cc, int currLoop, int currLane, int i
 /// @return  None
 /*--------------------------------------------------------------------*/
-void Relay_numCF(link* prevl, link* nextl, int nextLane, connection_cell* cc, int currLoop, int currLane, int i) {
-	if (cc->nextLinkID[currLane][i] != -1) {
-		/// (1) virtual cell of next link -> connection cell
-		if (cc->trafficSignal[currLane][currLoop] == 0) {
-			cc->numCFArr[currLane][currLoop] = 0;
-		}
-		else cc->numCFArr[currLane][i] = nextl->numCF[0][nextLane];
-
-		/// (2) connection cell -> previous link
-		int index = Find_Index(prevl->tempIDArr[currLane], MAX_LEG, cc->nextLinkID[currLane][i]);
-
-		prevl->tempNumArr[currLane][index] = cc->numVehArr[currLane][i];
+void Relay_numCF(link* prevl, link* nextl, int nextLane, connection_cell* cc, int currLoop, int currLane, int leg) {
+	/// (1) virtual cell of next link -> connection cell
+	if (cc->trafficSignal[currLane][currLoop] == 0) {
+		cc->numCFArr[currLane][currLoop] = 0;
 	}
+	else cc->numCFArr[currLane][leg] = nextl->numCF[0][nextLane];
+
+	/// (2) connection cell -> previous link
+	int index = Find_Index(prevl->tempIDArr[currLane], MAX_LEG, cc->nextLinkID[currLane][leg]);
+
+	prevl->tempNumArr[currLane][index] = cc->numVehArr[currLane][leg];
 }
 
 
@@ -955,27 +953,26 @@ void Update_nextLink(vehicle* v, link* prevl, link* nextl, int nextLane, connect
 		cc->nextLinkIDArr[currLane][i] = prevl->nextLinkIDArr[NUM_SECTION+1][currLane][i];
 		cc->vehIDArr[currLane][i] = prevl->vehIDArr[NUM_SECTION+1][currLane][i];
 	}
-	
+		
 	/// (2) connection cell -> first cell of next link
-	int count = 0;
-	int currNumVeh = nextl->numVehArr[1][currLane];
+	int index = nextl->numVehArr[1][currLane];
+
 	for (int i = 0 ; i < MAX_VEC ; i++) {
 		int currOrder = cc->currLinkOrderArr[currLane][i];
 		int currVehID = cc->vehIDArr[currLane][i];
 
 		if (cc->nextLinkIDArr[currLane][i] == nextl->linkID) {
-			int index = currNumVeh + count;
-			nextl->vehIDArr[1][currLane][index] = cc->vehIDArr[currLane][i];
-			nextl->currLinkOrderArr[1][currLane][index] = cc->currLinkOrderArr[currLane][i] + 1;
-			nextl->nextLinkIDArr[1][currLane][index] = v[currVehID].path[currOrder+1];
-			nextl->minTargetLaneArr[1][currLane][index] = v[currVehID].minTargetLane[currOrder+1];
-			nextl->maxTargetLaneArr[1][currLane][index] = v[currVehID].maxTargetLane[currOrder+1];
+			nextl->vehIDArr[1][nextLane][index] = cc->vehIDArr[currLane][i];
+			nextl->currLinkOrderArr[1][nextLane][index] = cc->currLinkOrderArr[currLane][i] + 1;
+			nextl->nextLinkIDArr[1][nextLane][index] = v[currVehID].path[currOrder+1];
+			nextl->minTargetLaneArr[1][nextLane][index] = v[currVehID].minTargetLane[currOrder+1];
+			nextl->maxTargetLaneArr[1][nextLane][index] = v[currVehID].maxTargetLane[currOrder+1];
 
-			count++;
+			index++;
 		}
 	}
 
-	nextl->numVehArr[1][currLane] += count;
+	nextl->numVehArr[1][nextLane] = index;
 }
 
 
@@ -1047,12 +1044,12 @@ void Reset_Link(link* l) {
 
 
 /*--------------------------------------------------------------------*/
-/// @fn      void Reset_sink()
+/// @fn      void Reset_Sink()
 /// @brief   Function that resets flags and temp variables of sink.
 /// @param   sink_cell* sk
 /// @return  None
 /*--------------------------------------------------------------------*/
-void Reset_sink(sink_cell* sk) {
+void Reset_Sink(sink_cell* sk) {
 	sk->numVeh = 0;
 
 	for (int i = 0 ; i < MAX_SINK_VEC ; i++) {
@@ -1073,7 +1070,7 @@ void Update_Source(vehicle* v, int numVeh, source_cell* sc, int currLoop) {
 	// vehicle scan
 	int j = 0;
 	for (int i = 0 ; i < numVeh ; i++) {
-		if (currLoop =< v[i].departTime && v[i].departTime < (currLoop + UPDATE_INTERVAL)) {
+		if (currLoop <= v[i].departTime && v[i].departTime < (currLoop + UPDATE_INTERVAL)) {
 			sc[v[i].initLink].vehIDArr[j] = v[i].vehID;
 			j++;
 			sc[v[i].initLink].numVeh++;
@@ -1091,13 +1088,13 @@ void Update_Source(vehicle* v, int numVeh, source_cell* sc, int currLoop) {
 /*--------------------------------------------------------------------*/
 void Start_Path(link* l, source_cell* sc, int numLink) {
 	if (l->numVehArr[3][3] < MAX_VEC) {
-		int numEnter = MIN(l[i].maxNumCF[2][3], (MAX_VEC - l[i].numVehArr[3][3]));
+		int numEnter = MIN(l->maxNumCF[2][3], (MAX_VEC - l->numVehArr[3][3]));
 
 		for (int j = 0 ; j < numEnter ; j++) {
-			MoveCF(sc->vehIDArr[j], sc->numVehArr, l->vehIDArr[3][3], l->numVehArr[3][3], 0);
+			MoveCF(sc->vehIDArr, sc->numVeh, l->vehIDArr[3][3], l->numVehArr[3][3], 0);
 			
 			sc->numVeh--;
-			l->numVeh[3][3]++;
+			l->numVehArr[3][3]++;
 		}
 	}
 }
@@ -1126,15 +1123,15 @@ void Remove_Value(int* fromArr, int fromArrSize, int index) {
 void End_Path(link* l, sink_cell* sk, int numLink) {
 	for (int lane = 0 ; lane < NUM_LANE ; lane++) {
     	for (int i = 0 ; i < MAX_VEC ; i++) {
-    		if (l->nextLinkIDArr[1][lane][i] == -2) {
-    			MoveCF(l->vehIDArr[sect][lane], l->numVehArr[sect][lane], sk->vehIDArr, sk->numVehArr, i);
-	        	Remove_Value(l->currLinkOrderArr[sect][lane], l->numVehArr[sect][lane], i);
-	        	Remove_Value(l->nextLinkIDArr[sect][lane], l->numVehArr[sect][lane], i);
-	        	Remove_Value(l->minTargetLaneArr[sect][lane], l->numVehArr[sect][lane], i);
-	        	Remove_Value(l->maxTargetLaneArr[sect][lane], l->numVehArr[sect][lane], i);
+    		if (l->nextLinkIDArr[3][lane][i] == -2) {
+    			MoveCF(l->vehIDArr[3][lane], l->numVehArr[3][lane], sk->vehIDArr, sk->numVeh, i);
+	        	Remove_Value(l->currLinkOrderArr[3][lane], l->numVehArr[3][lane], i);
+	        	Remove_Value(l->nextLinkIDArr[3][lane], l->numVehArr[3][lane], i);
+	        	Remove_Value(l->minTargetLaneArr[3][lane], l->numVehArr[3][lane], i);
+	        	Remove_Value(l->maxTargetLaneArr[3][lane], l->numVehArr[3][lane], i);
 	        	
-	        	sk->numVehArr++;
-	        	l->numVehArr[sect][lane]--;
+	        	sk->numVeh++;
+	        	l->numVehArr[3][lane]--;
     		}
     	}
     }
@@ -1148,7 +1145,7 @@ void End_Path(link* l, sink_cell* sk, int numLink) {
 ///          vehicle* v, int numVeh, int numLoop
 /// @return  None
 /*--------------------------------------------------------------------*/
-void SimulationStep(vehicle* v, int numVeh, link l[], int numLink, source_cell sc[], sink_cell sk[], connection_cell cc[], int numCC, int numLoop) {
+void SimulationStep(vehicle* v, int numVeh, link l[], source_cell sc[], sink_cell sk[], connection_cell cc[], int numLink, int numLoop) {
 	for (int count = 0 ; count < numLoop ; count++) {
 		int updateCycle = UPDATE_INTERVAL;
 		int updateStep = count % UPDATE_INTERVAL;
@@ -1157,14 +1154,14 @@ void SimulationStep(vehicle* v, int numVeh, link l[], int numLink, source_cell s
 			for (int link = 0 ; link < numLink ; link++) {
 				//PrintOutput();
 				Reset_Sink(&sk[link]);
-				Update_source(v, numVeh, &sc[link], currLoop);
+				Update_Source(v, numVeh, &sc[link], count);
 			}
 		}
 
         for (int link = 0 ; link < numLink ; link++) {
         	Reset_Link(&l[link]);
 
-        	End_Path(&l[link], &sk[link], numLink)
+        	End_Path(&l[link], &sk[link], numLink);
         	Start_Path(&l[link], &sc[link], numLink);
 
             Evaluate_MLC(&l[link]);
@@ -1174,11 +1171,13 @@ void SimulationStep(vehicle* v, int numVeh, link l[], int numLink, source_cell s
             Update_tempArr(&l[link]);
         }
 
-        for (int i = 0 ; i < numCC ; i++) {
+        for (int i = 0 ; i < numLink ; i++) {
         	for (int lane = 0 ; lane < NUM_LANE ; lane++) {
-        		Relay_numVeh(&l[cc[i].prevLinkID], &l[cc[i].nextLinkID[lane][0]], cc[i].nextLane[lane][0], &cc[i], lane, 0);
-        		Relay_numVeh(&l[cc[i].prevLinkID], &l[cc[i].nextLinkID[lane][1]], cc[i].nextLane[lane][1], &cc[i], lane, 1);
-        		Relay_numVeh(&l[cc[i].prevLinkID], &l[cc[i].nextLinkID[lane][2]], cc[i].nextLane[lane][2], &cc[i], lane, 2);
+        		for (int leg = 0 ; leg < MAX_LEG ; leg++) {
+        			if (cc[i].nextLinkID[lane][leg] >= 0) {
+        				Relay_numVeh(&l[cc[i].prevLinkID], &l[cc[i].nextLinkID[lane][leg]], cc[i].nextLane[lane][leg], &cc[i], lane, leg, i);
+        			}
+        		}
         	}
         	Reset_ConnectionCell(&cc[i]);
         }
@@ -1187,26 +1186,29 @@ void SimulationStep(vehicle* v, int numVeh, link l[], int numLink, source_cell s
         	Evaluate_CF(&l[link]);
         }
 	
-        for (int i = 0 ; i < numCC ; i++) {
+        for (int i = 0 ; i < numLink ; i++) {
         	for (int lane = 0 ; lane < NUM_LANE ; lane++) {
-        		Relay_numCF(&l[cc[i].prevLinkID], &l[cc[i].nextLinkID[lane][0]], cc[i].nextLane[lane][0], &cc[i], count, lane, 0); 		
-        		Relay_numCF(&l[cc[i].prevLinkID], &l[cc[i].nextLinkID[lane][1]], cc[i].nextLane[lane][1], &cc[i], count, lane, 1);
-				Relay_numCF(&l[cc[i].prevLinkID], &l[cc[i].nextLinkID[lane][2]], cc[i].nextLane[lane][2], &cc[i], count, lane, 2);
+        		for (int leg = 0 ; leg < MAX_LEG ; leg++) {
+        			if (cc[i].nextLinkID[lane][leg] >= 0) {
+        				Relay_numCF(&l[cc[i].prevLinkID], &l[cc[i].nextLinkID[lane][leg]], cc[i].nextLane[lane][leg], &cc[i], count, lane, leg); 		
+        			}
+        		}
         	}
         	Reset_ConnectionCell(&cc[i]);
        	}
 
         for (int link = 0 ; link < numLink ; link++) {
         	Evaluate_Eff_numCF(&l[link]);
-        	Update_vehCF(&l[link]);
         	CFsim(&l[link]);
         }
 
-        for (int i = 0 ; i < numCC ; i++) {
+        for (int i = 0 ; i < numLink ; i++) {
         	for (int lane = 0 ; lane < NUM_LANE ; lane++) {
-        		Update_nextLink(v, &l[cc[i].prevLinkID], &l[cc[i].nextLinkID[lane][0]], cc[i].nextLane[lane][0], &cc[i], lane);
-        		Update_nextLink(v, &l[cc[i].prevLinkID], &l[cc[i].nextLinkID[lane][1]], cc[i].nextLane[lane][1], &cc[i], lane);
-				Update_nextLink(v, &l[cc[i].prevLinkID], &l[cc[i].nextLinkID[lane][2]], cc[i].nextLane[lane][2], &cc[i], lane);
+        		for (int leg = 0 ; leg < MAX_LEG ; leg++) {
+        			if (cc[i].nextLinkID[lane][leg] >= 0) {
+        				Update_nextLink(v, &l[cc[i].prevLinkID], &l[cc[i].nextLinkID[lane][leg]], cc[i].nextLane[lane][leg], &cc[i], lane);
+        			}
+        		}
         	}
         	Reset_ConnectionCell(&cc[i]);
         }
@@ -1257,7 +1259,7 @@ int main(int argc, char *argv[]) {
 
     Setup_Veh(myveh, numVeh);
     Setup_Link(myveh, numVeh, mylink, mysource, mysink, numLink);
-    Setup_ConnectionCell(mycon, numCC);
+    Setup_ConnectionCell(mycon, numLink);
 
     double start, stop;
     start = get_time_ms();
