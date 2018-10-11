@@ -153,6 +153,7 @@ void End_Path(link* l, sink_cell*);
 void SimulationStep(vehicle*, int, link l[], source_cell sc[], sink_cell sk[], connection_cell cc[], int, int);
 
 double get_time_ms();
-void PrintOutput(link l[], source_cell sc[], int);
+void PrintOutput(link l[], source_cell sc[], sink_cell sk[], int);
+void PrintCC(connection_cell cc[], int);
 
 #endif /* TRAFFICSIM_H_ */
