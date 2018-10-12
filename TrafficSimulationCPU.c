@@ -58,7 +58,7 @@ void Setup_Veh(vehicle* v, int numVeh) {
 
 	/// vPath[] = list of linkID
 	int vPath[100][4] = {
-	{0, 1, 6, -2},  {0, 1, 6, -2},  {0, 1, 6, -2},  {0, 1, 4, -2},  {0, 1, 4, -2},
+	{0, 1, 6, -2},  {0, 1, -2, -2},  {0, 1, 6, -2},  {0, 1, 4, -2},  {0, 1, 4, -2},
 	{0, 1, 4, -2},  {0, 1, 4, -2},  {0, 1, 2, -2},  {0, 1, 2, -2},  {0, 1, 2, -2},
 	{1, 6, -2, -1}, {1, 6, -2, -1}, {1, 6, -2, -1}, {1, 4, -2, -1}, {1, 4, -2, -1},
 	{1, 4, -2, -1}, {1, 4, -2, -1}, {1, 2, -2, -1}, {1, 2, -2, -1}, {1, 2, -2, -1},
@@ -91,7 +91,7 @@ void Setup_Veh(vehicle* v, int numVeh) {
 	
 	/// vMinTL[] = list of minTargetLane
 	int vMinTL[100][4] = {
-	{0, 0, 0, -1},  {0, 0, 0, -1},  {0, 0, 0, -1},  {0, 1, 0, -1},  {0, 1, 0, -1},
+	{0, 0, 0, -1},  {0, 0, -1, -1},  {0, 0, 0, -1},  {0, 1, 0, -1},  {0, 1, 0, -1},
 	{0, 1, 0, -1},  {0, 1, 0, -1},  {0, 3, 0, -1},  {0, 3, 0, -1},  {0, 3, 0, -1}, 
 	{0, 0, -1, -1}, {0, 0, -1, -1}, {0, 0, -1, -1}, {1, 0, -1, -1}, {1, 0, -1, -1},
 	{1, 0, -1, -1}, {1, 0, -1, -1}, {3, 0, -1, -1}, {3, 0, -1, -1}, {3, 0, -1, -1},
@@ -115,7 +115,7 @@ void Setup_Veh(vehicle* v, int numVeh) {
 		
 	/// vMaxTL[] = list of maxTargetLane
 	int vMaxTL[100][4] = {
-	{3, 0, 3, -1},  {3, 0, 3, -1},  {3, 0, 3, -1},  {3, 3, 3, -1},  {3, 3, 3, -1},
+	{3, 0, 3, -1},  {3, 0, -1, -1},  {3, 0, 3, -1},  {3, 3, 3, -1},  {3, 3, 3, -1},
 	{3, 3, 3, -1},  {3, 3, 3, -1},  {3, 3, 3, -1},  {3, 3, 3, -1},  {3, 3, 3, -1},
 	{0, 3, -1, -1}, {0, 3, -1, -1}, {0, 3, -1, -1}, {3, 3, -1, -1}, {3, 3, -1, -1}, 
 	{3, 3, -1, -1}, {3, 3, -1, -1}, {3, 3, -1, -1}, {3, 3, -1, -1}, {3, 3, -1, -1}, 
@@ -718,12 +718,19 @@ void MoveLC(int* fromArr, int fromArrSize, int* toArr, int toArrSize, int index)
 /// @return  None
 /*--------------------------------------------------------------------*/
 void Remove_Blank(int* Arr, int ArrSize) {
-    for (int i = 0 ; i < ArrSize ; i++) {
-        if (Arr[i] == -1) {
-            for (int j = i ; j < ArrSize ; j++) {
-                Arr[j] = Arr[j+1];
+    if (ArrSize > 0) {
+        for (int i = 0 ; i < ArrSize ; i++) {
+            int index = Find_Index(Arr, ArrSize, -1);
+            //printf("i: %d, index: %d \n", i, index);
+            //printf("veh : %d , arr[%d]: %d  ", i, i, Arr[i]);
+            //if (Arr[i] == -1) {
+                //printf("Arr[%d]: %d ", i, Arr[i]);
+            if (index != -1) {
+                for (int j = index ; j < ArrSize ; j++) {
+                    Arr[j] = Arr[j+1];
+                }
+                Arr[ArrSize] = -1;
             }
-            Arr[ArrSize] = -1;
         }
     }
 }
@@ -738,7 +745,7 @@ void LCSim(link* l) {
     int numLC_L[NUM_SECTION+2][NUM_LANE];
     int numLC_R[NUM_SECTION+2][NUM_LANE];
     
-    for (int sect = 0 ; sect < NUM_SECTION+2 ; sect++) {
+    for (int sect = 1 ; sect < NUM_SECTION+1 ; sect++) {
         for (int lane = 0 ; lane < NUM_LANE ; lane++) {
             numLC_L[sect][lane] = 0;
             numLC_R[sect][lane] = 0;
@@ -747,12 +754,12 @@ void LCSim(link* l) {
     
     //MLC simulation
     //printf("MLC \n");
-    for (int sect = 0 ; sect < NUM_SECTION+2 ; sect++) {
+    for (int sect = 1 ; sect < NUM_SECTION+1 ; sect++) {
         for (int lane = 0 ; lane < NUM_LANE ; lane++) {
             //printf("sect: %d, lane: %d \n", sect, lane);
         	for (int i = 0 ; i < MAX_VEC ; i++) {
 	        	if (l->vehMLC[sect][lane][i] == 1) {
-                    //printf("direction: 1 \n");
+                    printf("direction: 1, veh: %d  \n", l->vehIDArr[sect][lane][i]);
 	        		if (l->numVehArr[sect][lane+1] < MAX_VEC) {
                         //printf("vehIDArr veh: %d \n", i);
 	        			MoveLC(l->vehIDArr[sect][lane], l->numVehArr[sect][lane], 
@@ -776,7 +783,7 @@ void LCSim(link* l) {
 	        	} 
 	        		
 	        	else if (l->vehMLC[sect][lane][i] == -1) {
-                    //printf("direction: -1 \n");
+                    printf("direction: -1, veh: %d  \n", l->vehIDArr[sect][lane][i]);
 	        		if (l->numVehArr[sect][lane-1] < MAX_VEC) {
                         //printf("vehIDArr veh: %d \n", i);
 						MoveLC(l->vehIDArr[sect][lane], l->numVehArr[sect][lane], 
@@ -804,7 +811,7 @@ void LCSim(link* l) {
     
     //printf("OLC \n");
     //OLC simulation
-    for (int sect = 0 ; sect < NUM_SECTION+2 ; sect++) {
+    for (int sect = 1 ; sect < NUM_SECTION+1 ; sect++) {
         for (int lane = 0 ; lane < NUM_LANE ; lane++) {
             //printf("sect: %d, lane: %d \n", sect, lane);
         	for (int i = 0 ; i < MAX_VEC ; i++) {
@@ -854,19 +861,19 @@ void LCSim(link* l) {
         }
     }
     
-    for (int sect = 0 ; sect < NUM_SECTION+2 ; sect++) {
+    for (int sect = 1 ; sect < NUM_SECTION+1 ; sect++) {
         for (int lane = 0 ; lane < NUM_LANE ; lane++) {
-            
-            Remove_Blank(l->vehIDArr[sect][lane], l->numVehArr[sect][lane]);
-            Remove_Blank(l->currLinkOrderArr[sect][lane], l->numVehArr[sect][lane]);
-            Remove_Blank(l->nextLinkIDArr[sect][lane], l->numVehArr[sect][lane]);
-            Remove_Blank(l->minTargetLaneArr[sect][lane], l->numVehArr[sect][lane]);
-            Remove_Blank(l->maxTargetLaneArr[sect][lane], l->numVehArr[sect][lane]);
+            printf("sect: %d, lane: %d \n", sect, lane);
+            Remove_Blank(l->vehIDArr[sect][lane], MAX_VEC - 1);
+            Remove_Blank(l->currLinkOrderArr[sect][lane], MAX_VEC - 1);
+            Remove_Blank(l->nextLinkIDArr[sect][lane], MAX_VEC - 1);
+            Remove_Blank(l->minTargetLaneArr[sect][lane], MAX_VEC - 1);
+            Remove_Blank(l->maxTargetLaneArr[sect][lane], MAX_VEC - 1);
             
         }
     }
     
-    for (int sect = 0 ; sect < NUM_SECTION+2 ; sect++) {
+    for (int sect = 1 ; sect < NUM_SECTION+1 ; sect++) {
         for (int lane = 0 ; lane < NUM_LANE ; lane++) {
             l->numVehArr[sect][lane] -= (numLC_L[sect][lane] + numLC_R[sect][lane]);
             //l->numVehArr[sect][lane+1] += numLC_R[sect][lane];
@@ -914,6 +921,7 @@ void Evaluate_CF(link* l) {
 /// @return  None
 /*--------------------------------------------------------------------*/
 void MoveCF(int* fromArr, int fromArrSize, int* toArr, int toArrSize, int index) {
+    
     /*
     printf("MOVECF fromArrSize: %d, toArrSize: %d, index: %d \n", fromArrSize, toArrSize, index);
     for (int i = 0 ; i < fromArrSize ; i++) {
@@ -938,7 +946,7 @@ void MoveCF(int* fromArr, int fromArrSize, int* toArr, int toArrSize, int index)
     for (int i = 0 ; i < toArrSize+1 ; i++) {
         printf("toArr[ %d ] = %d \n", i, toArr[i]);
     }
-     */
+    */
 
 }
 
@@ -1332,6 +1340,9 @@ void Remove_Value(int* fromArr, int fromArrSize, int index) {
     }
     fromArr[MAX_VEC] = -1;
     
+    for (int i = 0 ; i < MAX_VEC ; i++) {
+        printf("fromArr[%d]: %d \n", i, fromArr[i]);
+    }
 }
 
 
@@ -1344,20 +1355,50 @@ void Remove_Value(int* fromArr, int fromArrSize, int index) {
 /*--------------------------------------------------------------------*/
 void End_Path(link* l, sink_cell* sk) {
     int endSection = 3;
+    int numVehSink = 0;
 	for (int lane = 0 ; lane < NUM_LANE ; lane++) {
-    	for (int i = 0 ; i < MAX_VEC ; i++) {
+        int vehNum = l->numVehArr[endSection][lane];
+    	for (int i = 0 ; i < vehNum ; i++) {
     		if (l->nextLinkIDArr[endSection][lane][i] == -2) {
-                //printf("endSection: %d, lane: %d \n", endSection, lane);
-    			MoveCF(l->vehIDArr[endSection][lane], l->numVehArr[endSection][lane], sk->vehIDArr, sk->numVeh, i);
+    			//MoveCF(l->vehIDArr[endSection][lane], l->numVehArr[endSection][lane], sk->vehIDArr, sk->numVeh, 0);
+                sk->vehIDArr[sk->numVeh] = l->vehIDArr[endSection][lane][i];
+                l->vehIDArr[endSection][lane][i] = -1;
+                //printf("currLinkOrderArr \n");
+                l->currLinkOrderArr[endSection][lane][i] = -1;
+                //printf("nextLinkIDArr \n");
+                l->nextLinkIDArr[endSection][lane][i] = -1;
+                //printf("minTargetLaneArr \n");
+                l->minTargetLaneArr[endSection][lane][i] = -1;
+                //printf("maxTargetLaneArr \n");
+                l->maxTargetLaneArr[endSection][lane][i] = -1;
+                
+                /*
 	        	Remove_Value(l->currLinkOrderArr[endSection][lane], l->numVehArr[endSection][lane], i);
-	        	Remove_Value(l->nextLinkIDArr[endSection][lane], l->numVehArr[endSection][lane], i);
-	        	Remove_Value(l->minTargetLaneArr[endSection][lane], l->numVehArr[endSection][lane], i);
-	        	Remove_Value(l->maxTargetLaneArr[endSection][lane], l->numVehArr[endSection][lane], i);
-	        	
+                Remove_Value(l->nextLinkIDArr[endSection][lane], l->numVehArr[endSection][lane], i);
+                Remove_Value(l->minTargetLaneArr[endSection][lane], l->numVehArr[endSection][lane], i);
+                Remove_Value(l->maxTargetLaneArr[endSection][lane], l->numVehArr[endSection][lane], i);
+	        	*/
+                //numVehSink++;
 	        	sk->numVeh++;
 	        	l->numVehArr[endSection][lane]--;
     		}
     	}
+    }
+    
+    for (int lane = 0 ; lane < NUM_LANE ; lane++) {
+        //printf("lane: %d \n", lane);
+        
+        //printf("vehIDArr \n");
+        Remove_Blank(l->vehIDArr[endSection][lane], MAX_VEC-1);
+        //printf("currLinkOrderArr \n");
+        Remove_Blank(l->currLinkOrderArr[endSection][lane], MAX_VEC-1);
+        //printf("nextLinkIDArr \n");
+        Remove_Blank(l->nextLinkIDArr[endSection][lane], MAX_VEC-1);
+        //printf("minTargetLaneArr \n");
+        Remove_Blank(l->minTargetLaneArr[endSection][lane], MAX_VEC-1);
+        //printf("maxTargetLaneArr \n");
+        Remove_Blank(l->maxTargetLaneArr[endSection][lane], MAX_VEC-1);
+        
     }
 }
 
@@ -1389,17 +1430,21 @@ void SimulationStep(vehicle* v, int numVeh, link l[], source_cell sc[], sink_cel
         //PrintOutput(mylink, mysource, mysink, numLink);
         
 
+        printf("ENDPATH========================================\n");
         for (int link = 0 ; link < numLink ; link++) {
-            
-            //printf("ENDPATH========================================\n");
             //printf("link: %d \n", link);
         	End_Path(&l[link], &sk[link]);
-            
-            //printf("STARTPATH========================================\n");
+        }
+        
+        //PrintOutput(mylink, mysource, mysink, numLink);
+
+        printf("STARTPATH========================================\n");
+        for (int link = 0 ; link < numLink ; link++) {
+        
         	Start_Path(&l[link], &sc[link]);
         } 	       
         printf("ENDPATH, STARTPATH========================================\n");
-        //PrintOutput(mylink, mysource, mysink, numLink);
+        PrintOutput(mylink, mysource, mysink, numLink);
         printf("LCSIM========================================\n");
         
         for (int link = 0 ; link < numLink ; link++) {
@@ -1408,13 +1453,12 @@ void SimulationStep(vehicle* v, int numVeh, link l[], source_cell sc[], sink_cel
             Evaluate_OLC(&l[link]);
             LCSim(&l[link]);
             
-            printf("link: %d \n", link);
-            
             Update_tempArr(&l[link]);
+            
         }
         
-        //PrintOutput(mylink, mysource, mysink, numLink);
-        
+        PrintOutput(mylink, mysource, mysink, numLink);
+
         printf("CFSIM========================================\n");
         printf("RELAYNUMVEH========================================\n");
         
@@ -1489,7 +1533,7 @@ void SimulationStep(vehicle* v, int numVeh, link l[], source_cell sc[], sink_cel
         }
         
         printf("RESETLINK========================================\n");
-        PrintOutput(mylink, mysource, mysink, numLink);
+        //PrintOutput(mylink, mysource, mysink, numLink);
         
 	}
 }
@@ -1504,7 +1548,7 @@ double get_time_ms() {
 }
 
 void PrintCC (connection_cell cc[], int numLink) {
-    printf("cccccccccccccccccccccccccccccccccccccccc\n");
+    printf("=CC================================\n");
     
     for (int i = 0 ; i < numLink ; i++) {
         printf("cc: %d \n", i);
@@ -1554,6 +1598,7 @@ void PrintOutput (link l[], source_cell sc[], sink_cell sk[], int numLink) {
                 printf("vehIDArr: %d ", sk[link].vehIDArr[i]);
             }
         }
+        printf("\n");
         
 	}
 }
