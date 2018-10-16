@@ -12,6 +12,7 @@
 #define MAX_CYCLE_DURATION  100 /// Max duration of traffic signal cycle is fixed as 100 simulation time step
 #define SECONDS_PER_STEP   	5	/// Time interval of one simulation loop is fixed as 5 seconds
 #define UPDATE_INTERVAL 	60 	/// Time interval between vehicle update is fixed as 300 seconds
+#define JAMDENSITY          200 /// Jam density (veh/km)
 
 #define MIN(a,b) (((a)<(b)) ? (a):(b))
 #define MAX(a,b) (((a)>(b)) ? (a):(b))
@@ -40,7 +41,7 @@ typedef struct {
 	
 	double ffSpeed;								/// Free flow speed: 16(m/s)
 	double lenSection[NUM_SECTION+2];			/// Length of section: 100(m)
-	int maxNumVeh[NUM_SECTION+2][NUM_LANE];   	/// Maximum possible number of vehicles in one cell
+	int maxNumVeh[NUM_SECTION+2][NUM_LANE];   	/// Maximum possible number of vehicles in one cell (jamdensity/lenSection)
 	double maxNumCF[NUM_SECTION+2][NUM_LANE];	/// Maximum possible number of CF
 	
 	int numVehArr[NUM_SECTION+2][NUM_LANE];  	  			/// Number of vehicles
@@ -50,7 +51,9 @@ typedef struct {
 	int minTargetLaneArr[NUM_SECTION+2][NUM_LANE][MAX_VEC]; /// Minimum target lane in current link
 	int maxTargetLaneArr[NUM_SECTION+2][NUM_LANE][MAX_VEC]; /// Maximum target lane in current link
 
-	int speed[NUM_SECTION+2][NUM_LANE];		/// Average speed of vehicles in one cell
+	double speed[NUM_SECTION+2][NUM_LANE];		/// Average speed of vehicles in one cell
+    double density[NUM_SECTION+2][NUM_LANE];
+    //double jamdensity[NUM_SECTION+2][NUM_LANE];
 
 	int numMLCL[NUM_SECTION+2][NUM_LANE];  	/// Number of vehicles that performs MLCL
 	int numMLCR[NUM_SECTION+2][NUM_LANE]; 	/// Number of vehicles that performs MLCR
@@ -147,7 +150,7 @@ void Reset_Sink(sink_cell*);
 /// Source functions
 void Update_Source(vehicle*, int, source_cell*, int);
 void Start_Path(link*, source_cell*);
-void End_Path(link* l, sink_cell*);
+void End_Path(link* l, sink_cell*, int);
 	void Remove_Value(int*, int, int);
 
 void SimulationStep(vehicle*, int, link l[], source_cell sc[], sink_cell sk[], connection_cell cc[], int, int);
