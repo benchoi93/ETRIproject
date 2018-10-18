@@ -36,9 +36,8 @@ typedef struct {
 
 
 typedef struct {
-
 	int linkID;						/// ID of link
-	
+
 	double ffSpeed;						/// Free flow speed: 16(m/s)
 	double lenSection[NUM_SECTION+2];			/// Length of section: 100(m)
 	int maxNumVeh[NUM_SECTION+2][NUM_LANE];   		/// Maximum possible number of vehicles in one cell (jamdensity/lenSection)
@@ -52,7 +51,7 @@ typedef struct {
 	int maxTargetLaneArr[NUM_SECTION+2][NUM_LANE][MAX_VEC]; /// Maximum target lane in current link
 
 	double speed[NUM_SECTION+2][NUM_LANE];			/// Average speed of vehicles in one cell
-        double density[NUM_SECTION+2][NUM_LANE];		//double jamdensity[NUM_SECTION+2][NUM_LANE];
+	double density[NUM_SECTION+2][NUM_LANE];		//double jamdensity[NUM_SECTION+2][NUM_LANE];
 
 	int numMLCL[NUM_SECTION+2][NUM_LANE];  			/// Number of vehicles that performs MLCL
 	int numMLCR[NUM_SECTION+2][NUM_LANE]; 			/// Number of vehicles that performs MLCR
