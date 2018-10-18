@@ -37,31 +37,30 @@ typedef struct {
 
 typedef struct {
 
-	int linkID;		/// ID of link
+	int linkID;						/// ID of link
 	
-	double ffSpeed;								/// Free flow speed: 16(m/s)
+	double ffSpeed;						/// Free flow speed: 16(m/s)
 	double lenSection[NUM_SECTION+2];			/// Length of section: 100(m)
-	int maxNumVeh[NUM_SECTION+2][NUM_LANE];   	/// Maximum possible number of vehicles in one cell (jamdensity/lenSection)
-	double maxNumCF[NUM_SECTION+2][NUM_LANE];	/// Maximum possible number of CF
+	int maxNumVeh[NUM_SECTION+2][NUM_LANE];   		/// Maximum possible number of vehicles in one cell (jamdensity/lenSection)
+	double maxNumCF[NUM_SECTION+2][NUM_LANE];		/// Maximum possible number of CF
 	
-	int numVehArr[NUM_SECTION+2][NUM_LANE];  	  			/// Number of vehicles
-	int vehIDArr[NUM_SECTION+2][NUM_LANE][MAX_VEC];			/// ID of vehicles
+	int numVehArr[NUM_SECTION+2][NUM_LANE];  		/// Number of vehicles
+	int vehIDArr[NUM_SECTION+2][NUM_LANE][MAX_VEC];		/// ID of vehicles
 	int currLinkOrderArr[NUM_SECTION+2][NUM_LANE][MAX_VEC];	/// Current link order in vehicle path
 	int nextLinkIDArr[NUM_SECTION+2][NUM_LANE][MAX_VEC];	/// Next link ID of vehicle
 	int minTargetLaneArr[NUM_SECTION+2][NUM_LANE][MAX_VEC]; /// Minimum target lane in current link
 	int maxTargetLaneArr[NUM_SECTION+2][NUM_LANE][MAX_VEC]; /// Maximum target lane in current link
 
-	double speed[NUM_SECTION+2][NUM_LANE];		/// Average speed of vehicles in one cell
-    double density[NUM_SECTION+2][NUM_LANE];
-    //double jamdensity[NUM_SECTION+2][NUM_LANE];
+	double speed[NUM_SECTION+2][NUM_LANE];			/// Average speed of vehicles in one cell
+        double density[NUM_SECTION+2][NUM_LANE];		//double jamdensity[NUM_SECTION+2][NUM_LANE];
 
-	int numMLCL[NUM_SECTION+2][NUM_LANE];  	/// Number of vehicles that performs MLCL
-	int numMLCR[NUM_SECTION+2][NUM_LANE]; 	/// Number of vehicles that performs MLCR
-	double numCF[NUM_SECTION+2][NUM_LANE];	/// Number of vehicles that performs CF
+	int numMLCL[NUM_SECTION+2][NUM_LANE];  			/// Number of vehicles that performs MLCL
+	int numMLCR[NUM_SECTION+2][NUM_LANE]; 			/// Number of vehicles that performs MLCR
+	double numCF[NUM_SECTION+2][NUM_LANE];			/// Number of vehicles that performs CF
 	
-	int vehMLC[NUM_SECTION+2][NUM_LANE][MAX_VEC];   /// MLC flag of vehicles /// MLCL: -1, MLCR: 1
-	int vehOLC[NUM_SECTION+2][NUM_LANE][MAX_VEC]; 	/// OLC flag of vehicles /// OLCL: -1, OLCR: 1
-	int vehCF[NUM_SECTION+2][NUM_LANE][MAX_VEC];   	/// CF flag of vehicles /// CF: 1, notCF: 0
+	int vehMLC[NUM_SECTION+2][NUM_LANE][MAX_VEC]; 		/// MLC flag of vehicles /// MLCL: -1, MLCR: 1
+	int vehOLC[NUM_SECTION+2][NUM_LANE][MAX_VEC]; 		/// OLC flag of vehicles /// OLCL: -1, OLCR: 1
+	int vehCF[NUM_SECTION+2][NUM_LANE][MAX_VEC];   		/// CF flag of vehicles /// CF: 1, notCF: 0
 
 	int tempIDArr[NUM_LANE][MAX_LEG]; 	/// 2D array to temporary store ID information to or from the connection cell
 	int tempNumArr[NUM_LANE][MAX_LEG];	/// 2D array to temporary store number information to or from the connection cell
