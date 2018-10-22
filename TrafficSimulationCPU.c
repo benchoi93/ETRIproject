@@ -9,7 +9,7 @@
 
 #include "TrafficSim.h"
 
-link *mylink;
+roadlink *mylink;
 vehicle *myveh;
 source_cell *mysource;
 sink_cell *mysink;
@@ -244,7 +244,7 @@ void Setup_Veh(vehicle* v, int numVeh) {
 /// @param   vehicle* v, int numVeh, link* l, int numLink
 /// @return  None
 /*--------------------------------------------------------------------*/
-void Setup_Link(vehicle* v, int numVeh, link* l, source_cell* sc, sink_cell* sk, int numLink) {
+void Setup_Link(vehicle* v, int numVeh, roadlink* l, source_cell* sc, sink_cell* sk, int numLink) {
 	/// (1) Setup link ID, characteristics and initialize values.
 	for (int i = 0 ; i < numLink ; i++) {
 		l[i].linkID = i;
@@ -512,7 +512,7 @@ void Setup_ConnectionCell(connection_cell* cc, int numCC) {
 /// @param   link *l, int numLink
 /// @return  None
 /*--------------------------------------------------------------------*/
-void Evaluate_MLC(link *l) {
+void Evaluate_MLC(roadlink *l) {
  	for (int sect = 0 ; sect < NUM_SECTION+2 ; sect++) {
         for (int lane = 0 ; lane < NUM_LANE ; lane++) {
             for (int i = 0 ; i < l->numVehArr[sect][lane] ; i++) {
@@ -567,7 +567,7 @@ int Evaluate_Prob(double inputProb) {
 /// @param   link* l, int numOLC_L, int numOLC_R, int sect, int lane
 /// @return  None
 /*--------------------------------------------------------------------*/
-void Select_Veh(link* l, int numOLC_L, int numOLC_R, int sect, int lane) {
+void Select_Veh(roadlink* l, int numOLC_L, int numOLC_R, int sect, int lane) {
 	int numVeh = l->numVehArr[sect][lane];
 	int possOLC[MAX_VEC] = {0};
 
@@ -699,7 +699,7 @@ void Select_Veh(link* l, int numOLC_L, int numOLC_R, int sect, int lane) {
 /// @param   link *l
 /// @return  None
 /*--------------------------------------------------------------------*/
-void Evaluate_OLC(link *l) {
+void Evaluate_OLC(roadlink *l) {
     for (int sect = 0 ; sect < NUM_SECTION+2 ; sect++) {
         for (int lane = 0 ; lane < NUM_LANE ; lane++) {
         	int numMLC_L = l->numMLCL[sect][lane];
@@ -819,7 +819,7 @@ void Remove_Blank(int* Arr, int ArrSize) {
 /// @param   link* l
 /// @return  None
 /*--------------------------------------------------------------------*/
-void LCSim(link* l) {
+void LCSim(roadlink* l) {
     int numLC_L[NUM_SECTION+2][NUM_LANE];
     int numLC_R[NUM_SECTION+2][NUM_LANE];
     
@@ -978,7 +978,7 @@ void LCSim(link* l) {
 /// @param   link* l
 /// @return  None
 /*--------------------------------------------------------------------*/
-void Evaluate_CF(link* l) {
+void Evaluate_CF(roadlink* l) {
 	double wSpeed = 4.2;
   
 	for (int sect = 0 ; sect < NUM_SECTION ; sect++) {
@@ -1043,7 +1043,7 @@ void MoveCF(int* fromArr, int fromArrSize, int* toArr, int toArrSize, int index)
 /// @param   link *l
 /// @return  None
 /*--------------------------------------------------------------------*/
-void CFsim(link *l) {
+void CFsim(roadlink *l) {
 	for (int sect = NUM_SECTION; sect > 0 ; sect--) {
         for (int lane = 0 ; lane < NUM_LANE ; lane++) {
             printf("[ %d , %d ] vehID: ", sect, lane);
@@ -1097,7 +1097,7 @@ int Find_Index(int* findArr, int findArrSize, int findValue) {
 /// @param   link* l
 /// @return  None
 /*--------------------------------------------------------------------*/
-void Update_tempArr(link* l) {
+void Update_tempArr(roadlink* l) {
 	for (int lane = 0 ; lane < NUM_LANE ; lane++) {
         int tempArrSize = 0;
         
@@ -1130,7 +1130,7 @@ void Update_tempArr(link* l) {
 ///          int currLane, int i
 /// @return  None
 /*--------------------------------------------------------------------*/
-void Relay_numVeh(link* prevl, link* nextl, int nextLane, connection_cell* cc, int currLane, int leg, int currLink) {
+void Relay_numVeh(roadlink* prevl, roadlink* nextl, int nextLane, connection_cell* cc, int currLane, int leg, int currLink) {
 	/// (1) Relay numVeh from tempArr of previous link to next link
 	int index = Find_Index(prevl->tempIDArr[currLane], MAX_LEG, cc->nextLinkID[currLane][leg]);
 
@@ -1152,7 +1152,7 @@ void Relay_numVeh(link* prevl, link* nextl, int nextLane, connection_cell* cc, i
 /// @param   link* prevl, link* nextl, int nextLane, connection_cell* cc, int currLoop, int currLane, int i
 /// @return  None
 /*--------------------------------------------------------------------*/
-void Relay_numCF(link* prevl, link* nextl, int nextLane, connection_cell* cc, int currLoop, int currLane, int leg) {
+void Relay_numCF(roadlink* prevl, roadlink* nextl, int nextLane, connection_cell* cc, int currLoop, int currLane, int leg) {
 	/// (1) virtual cell of next link -> connection cell
     //printf("signal: %d ", cc->trafficSignal[currLane][currLoop]);
     
@@ -1182,7 +1182,7 @@ void Relay_numCF(link* prevl, link* nextl, int nextLane, connection_cell* cc, in
 /// @param   link* l, connection_cell* cc
 /// @return  None
 /*--------------------------------------------------------------------*/
-void Evaluate_Eff_numCF(link* l) {
+void Evaluate_Eff_numCF(roadlink* l) {
     //printf("effNumCF: ");
 	for (int lane = 0 ; lane < NUM_LANE ; lane++) {
 		int tempArrSize = 0;
@@ -1239,7 +1239,7 @@ void Evaluate_Eff_numCF(link* l) {
 /// @param   vehicle* v, link* prevl, link* nextl, int nextLane, connection_cell* cc, int currLoop, int currLane
 /// @return  None
 /*--------------------------------------------------------------------*/
-void Update_nextLink(vehicle* v, link* prevl, link* nextl, int nextLane, connection_cell* cc, int currLane) {
+void Update_nextLink(vehicle* v, roadlink* prevl, roadlink* nextl, int nextLane, connection_cell* cc, int currLane) {
 	/// (1) previous link -> connection cell
 	for (int i = 0 ; i < MAX_VEC ; i++) {
 		cc->currLinkOrderArr[currLane][i] = prevl->currLinkOrderArr[NUM_SECTION+1][currLane][i];
@@ -1300,7 +1300,7 @@ void Reset_ConnectionCell(connection_cell* cc) {
 /// @param   link* l
 /// @return  None
 /*--------------------------------------------------------------------*/
-void Reset_Link(link* l) {
+void Reset_Link(roadlink* l) {
 
 	for (int sect = 0 ; sect < NUM_SECTION+2 ; sect++) {
     	for (int lane = 0 ; lane < NUM_LANE ; lane++) {
@@ -1348,7 +1348,7 @@ void Reset_Link(link* l) {
 /// @param   link* l
 /// @return  None
 /*--------------------------------------------------------------------*/
-void update_Speed(link* l) {
+void update_Speed(roadlink* l) {
     double wSpeed = WAVESPEED * 1000 / 3600;
     
     for (int sect = 0 ; sect < NUM_SECTION+2 ; sect++) {
@@ -1410,7 +1410,7 @@ void Update_Source(vehicle* v, int numVeh, source_cell* sc, int currLoop) {
 /// @param   link* l, source_cell* sc, int numLink
 /// @return  None
 /*--------------------------------------------------------------------*/
-void Start_Path(link* l, source_cell* sc) {
+void Start_Path(roadlink* l, source_cell* sc) {
     int startSection = 1;
     int startLane = 3;
 	if (l->numVehArr[startSection][startLane] < MAX_VEC) {
@@ -1465,7 +1465,7 @@ void Remove_Value(int* fromArr, int fromArrSize, int index) {
 /// @param   link* l, sink_cell* sk, int numLink
 /// @return  None
 /*--------------------------------------------------------------------*/
-void End_Path(link* l, sink_cell* sk, int numLoop) {
+void End_Path(roadlink* l, sink_cell* sk, int numLoop) {
     int endSection = 3;
     int numVehSink = 0;
 	for (int lane = 0 ; lane < NUM_LANE ; lane++) {
@@ -1524,7 +1524,7 @@ void End_Path(link* l, sink_cell* sk, int numLoop) {
 ///          vehicle* v, int numVeh, int numLoop
 /// @return  None
 /*--------------------------------------------------------------------*/
-void SimulationStep(vehicle* v, int numVeh, link l[], source_cell sc[], sink_cell sk[], connection_cell cc[], int numLink, int numLoop) {
+void SimulationStep(vehicle* v, int numVeh, roadlink l[], source_cell sc[], sink_cell sk[], connection_cell cc[], int numLink, int numLoop) {
 	for (int count = 0 ; count < numLoop ; count++) {
 		//int updateCycle = UPDATE_INTERVAL;
 		int updateStep = count % UPDATE_INTERVAL;
@@ -1668,7 +1668,7 @@ void PrintCC (connection_cell cc[], int numLink) {
     }
 }
 
-void PrintOutput (link l[], source_cell sc[], sink_cell sk[], int numLink) {
+void PrintOutput (roadlink l[], source_cell sc[], sink_cell sk[], int numLink) {
 	printf("========================================\n");
 	
 	for (int link = 0 ; link < numLink ; link++) {
@@ -1724,7 +1724,7 @@ int main(int argc, char *argv[]) {
     printf("========================================\n");
 	
 	myveh = (vehicle*) calloc(numVeh, sizeof(vehicle));
-	mylink = (link*) calloc(numLink, sizeof(link));
+	mylink = (roadlink*) calloc(numLink, sizeof(roadlink));
 	mysource = (source_cell*) malloc(numLink * sizeof(source_cell));
 	mysink = (sink_cell*) malloc(numLink * sizeof(sink_cell));
 	mycon = (connection_cell*) malloc(numLink * sizeof(connection_cell));
