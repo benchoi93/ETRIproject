@@ -68,7 +68,7 @@ typedef struct {
 	int tempIDArr[NUM_LANE][MAX_LEG]; 	/// 2D array to temporary store ID information to or from the connection cell
 	int tempNumArr[NUM_LANE][MAX_LEG];	/// 2D array to temporary store number information to or from the connection cell
 
-} link;
+} roadlink;
 
 
 typedef struct {
@@ -119,48 +119,48 @@ typedef struct {
 
 /// Setup functions 
 void Setup_Veh(vehicle*, int);
-void Setup_Link(vehicle*, int, link*, source_cell*, sink_cell*, int);
+void Setup_Link(vehicle*, int, roadlink*, source_cell*, sink_cell*, int);
 void Setup_ConnectionCell(connection_cell*, int);
 
 /// LC functions
-void Evaluate_MLC(link*);
-void Evaluate_OLC(link*);
+void Evaluate_MLC(roadlink*);
+void Evaluate_OLC(roadlink*);
 	int Evaluate_Prob(double);
-	void Select_Veh(link*, int, int, int, int);
-void LCSim(link*);
+	void Select_Veh(roadlink*, int, int, int, int);
+void LCSim(roadlink*);
 	void MoveLC(int*, int, int*, int, int);
     void Remove_Blank(int*, int);
 
 
 /// CF functions
-void Evaluate_CF(link*);
-void CFsim(link*);
+void Evaluate_CF(roadlink*);
+void CFsim(roadlink*);
 	void MoveCF(int*, int, int*, int, int);
 
 /// CC functions
-void Update_tempArr(link*);
+void Update_tempArr(roadlink*);
 	int Find_Index(int*, int, int);
-void Relay_numVeh(link*, link*, int, connection_cell*, int, int, int);
-void Relay_numCF(link*, link*, int, connection_cell*, int, int, int);
-void Evaluate_Eff_numCF(link*);
-void Update_nextLink(vehicle*, link*, link*, int, connection_cell*, int);
+void Relay_numVeh(roadlink*, roadlink*, int, connection_cell*, int, int, int);
+void Relay_numCF(roadlink*, roadlink*, int, connection_cell*, int, int, int);
+void Evaluate_Eff_numCF(roadlink*);
+void Update_nextlink(vehicle*, roadlink*, roadlink*, int, connection_cell*, int);
 
 /// Reset functions
 void Reset_ConnectionCell(connection_cell*);
-void Reset_Link(link*);
-    void update_Speed(link*);
+void Reset_Link(roadlink*);
+    void update_Speed(roadlink*);
 void Reset_Sink(sink_cell*);
 
 /// Source functions
 void Update_Source(vehicle*, int, source_cell*, int);
-void Start_Path(link*, source_cell*);
-void End_Path(link* l, sink_cell*, int);
+void Start_Path(roadlink*, source_cell*);
+void End_Path(roadlink* l, sink_cell*, int);
 	void Remove_Value(int*, int, int);
 
-void SimulationStep(vehicle*, int, link l[], source_cell sc[], sink_cell sk[], connection_cell cc[], int, int);
+void SimulationStep(vehicle*, int, roadlink l[], source_cell sc[], sink_cell sk[], connection_cell cc[], int, int);
 
 double get_time_ms();
-void PrintOutput(link l[], source_cell sc[], sink_cell sk[], int);
+void PrintOutput(roadlink l[], source_cell sc[], sink_cell sk[], int);
 void PrintCC(connection_cell cc[], int);
 
 #endif /* TRAFFICSIM_H_ */
